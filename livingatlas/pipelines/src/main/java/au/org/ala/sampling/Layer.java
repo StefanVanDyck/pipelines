@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.Instant;
+
 /** A spatial layer in stored and served by the spatial service. */
 @Getter
 @Setter
@@ -15,7 +17,7 @@ public class Layer {
 
   private String id;
   private Boolean enabled;
-  private Long dt_added;
+  private Instant dt_added;
   private String source_link;
   private String datalang;
   private String environmentalvaluemin;
