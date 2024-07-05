@@ -7,6 +7,7 @@ import au.org.ala.utils.ALAFsUtils;
 import au.org.ala.utils.ValidationUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,7 +25,9 @@ public class SamplingUtils {
 
   public static SamplingService initSamplingService(String baseUrl) {
     ObjectMapper om =
-        new ObjectMapper().setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
+        new ObjectMapper()
+            .registerModule(new JavaTimeModule())
+            .setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
     JacksonConverterFactory jcf = JacksonConverterFactory.create(om);
     // set up sampling service
     Retrofit retrofit = new Retrofit.Builder().baseUrl(baseUrl).addConverterFactory(jcf).build();
