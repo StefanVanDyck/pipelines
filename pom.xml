@@ -74,6 +74,10 @@
         <enabled>false</enabled>
       </snapshots>
     </repository>
+    <repository>
+      <id>huawei-maven</id>
+      <url>https://repo.huaweicloud.com/repository/maven/huaweicloudsdk/</url>
+    </repository>
   </repositories>
 
   <properties>
