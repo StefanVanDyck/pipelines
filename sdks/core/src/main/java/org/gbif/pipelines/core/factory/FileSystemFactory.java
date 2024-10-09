@@ -28,6 +28,7 @@ public class FileSystemFactory {
 
   @SneakyThrows
   private FileSystemFactory(HdfsConfigs hdfsConfigs) {
+      log.warn("HDFS Configs: {}", hdfsConfigs);
     if (!Strings.isNullOrEmpty(hdfsConfigs.getHdfsSiteConfig())) {
 
       String hdfsPrefixToUse = getHdfsPrefix(hdfsConfigs.getHdfsSiteConfig());
@@ -41,6 +42,7 @@ public class FileSystemFactory {
       } else {
         prefixToUse = hdfsPrefixToUse;
       }
+      log.warn("Prefix to use: {}", prefixToUse);
 
       if (prefixToUse != null) {
         this.hdfsPrefix = prefixToUse;
@@ -74,13 +76,17 @@ public class FileSystemFactory {
   }
 
   public FileSystem getFs(String path) {
+    log.info("Path: {}, HDFS prefix: {}", path, hdfsPrefix);
     if (path != null) {
       // using startsWith to allow for EMR style paths of hdfs:///
       if (hdfsPrefix != null && path.startsWith(hdfsPrefix)) {
+        log.info("first");
         return hdfsFs;
       } else if (path.startsWith(FsUtils.HDFS_EMR_PREFIX)) {
+        log.info("second");
         return hdfsFs;
       } else {
+        log.info("third");
         return localFs;
       }
     } else {
@@ -130,6 +136,7 @@ public class FileSystemFactory {
         hdfsPrefixToUse = hdfsSite.get("fs.defaultFS");
       }
     }
+    log.warn("HDFS prefix to use: {}", hdfsPrefixToUse);
     return hdfsPrefixToUse;
   }
 }

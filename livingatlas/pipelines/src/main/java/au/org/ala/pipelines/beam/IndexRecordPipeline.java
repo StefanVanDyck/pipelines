@@ -78,7 +78,6 @@ public class IndexRecordPipeline {
     options.setMetaFileName(ValidationUtils.INDEXING_METRICS);
     PipelinesOptionsFactory.registerHdfs(options);
     run(options);
-    System.exit(0);
   }
 
   public static void run(IndexingPipelineOptions options) throws Exception {
@@ -319,8 +318,8 @@ public class IndexRecordPipeline {
 
     MetricsHandler.saveCountersToTargetPathFile(options, result.metrics());
 
-    // run occurrence AVRO pipeline
-    ALAOccurrenceToSearchAvroPipeline.run(options);
+    // // run occurrence AVRO pipeline
+    // ALAOccurrenceToSearchAvroPipeline.run(options);
 
     log.info("Pipeline has been finished");
   }

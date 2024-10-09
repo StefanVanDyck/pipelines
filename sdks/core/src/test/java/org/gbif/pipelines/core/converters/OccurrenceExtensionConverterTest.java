@@ -38,11 +38,18 @@ public class OccurrenceExtensionConverterTest {
     extMap.put(DwcTerm.occurrenceID.qualifiedName(), idExt);
     extMap.put(somethingExt, somethingExt);
 
+    // Multimedia ext
+    Map<String, String> multiMediaExt = new HashMap<>(2);
+    multiMediaExt.put("GbifId", "1234");
+    multiMediaExt.put(somethingExt, somethingExt);
+
     // Set
     Map<String, List<Map<String, String>>> exts = new HashMap<>(2);
     exts.put(Occurrence.qualifiedName(), Collections.singletonList(extCoreMap));
     exts.put(MeasurementOrFact.qualifiedName(), Arrays.asList(extMap, extMap));
     exts.put(ResourceRelationship.qualifiedName(), Arrays.asList(extMap, extMap));
+    exts.put(
+        "http://rs.gbif.org/terms/1.0/Multimedia", Arrays.asList(multiMediaExt, multiMediaExt));
 
     ExtendedRecord extendedRecord =
         ExtendedRecord.newBuilder().setId(idCore).setCoreTerms(coreMap).setExtensions(exts).build();
@@ -67,6 +74,12 @@ public class OccurrenceExtensionConverterTest {
         2, erResult.getExtensions().get(ResourceRelationship.qualifiedName()).size());
     Assert.assertEquals(
         2, erResult.getExtensions().get(ResourceRelationship.qualifiedName()).get(0).size());
+
+    Assert.assertEquals(
+        2, erResult.getExtensions().get("http://rs.gbif.org/terms/1.0/Multimedia").size());
+    Assert.assertEquals(
+        2, erResult.getExtensions().get("http://rs.gbif.org/terms/1.0/Multimedia").get(0).size());
+    //
 
     // coreId has the id reported in the Core
     Assert.assertEquals(idCore, erResult.getCoreId());

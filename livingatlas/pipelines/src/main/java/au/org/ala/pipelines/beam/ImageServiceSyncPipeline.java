@@ -92,8 +92,6 @@ public class ImageServiceSyncPipeline {
 
     PipelinesOptionsFactory.registerHdfs(options);
     run(options);
-    // FIXME: Issue logged here: https://github.com/AtlasOfLivingAustralia/la-pipelines/issues/105
-    System.exit(0);
   }
   /**
    * Includes the following steps:
@@ -128,12 +126,12 @@ public class ImageServiceSyncPipeline {
     String multimedia =
         String.join(
             "/",
-            options.getInputPath(),
+            options.getInputPath().replace("hdfs:///", "hdfs://"),
             options.getDatasetId(),
             options.getAttempt().toString(),
             "occurrence",
             "multimedia");
-
+    log.warn("Multimedia path: {}", multimedia);
     if (ALAFsUtils.exists(fs, multimedia)) {
 
       // download the mapping from the image service
@@ -449,7 +447,7 @@ public class ImageServiceSyncPipeline {
     String hdfsPath =
         String.join(
             "/",
-            options.getInputPath(),
+            options.getInputPath().replace("hdfs:///", "hdfs://"),
             options.getDatasetId(),
             options.getAttempt().toString(),
             "images",

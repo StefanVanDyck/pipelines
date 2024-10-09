@@ -894,7 +894,7 @@
                   <transformers>
                     <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
                     <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                      <mainClass>org.gbif.pipelines.ingest.pipelines.DwcaToVerbatimPipeline</mainClass>
+                      <!-- <mainClass>org.gbif.pipelines.ingest.pipelines.DwcaToVerbatimPipeline</mainClass> -->
                     </transformer>
                     <!-- append default configs -->
                     <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
@@ -906,6 +906,10 @@
                     <relocation>
                       <pattern>com.fasterxml.jackson</pattern>
                       <shadedPattern>j213.com.fasterxml.jackson</shadedPattern>
+                    </relocation>
+                    <relocation>
+                      <pattern>org.yaml.snakeyaml</pattern>
+                      <shadedPattern>s125.org.yaml.snakeyaml</shadedPattern>
                     </relocation>
                     <relocation>
                       <pattern>okhttp3</pattern>

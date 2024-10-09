@@ -93,8 +93,6 @@ public class ALAUUIDMintingPipeline {
     MDC.put("step", "UUID");
     PipelinesOptionsFactory.registerHdfs(options);
     run(options);
-    // FIXME: Issue logged here: https://github.com/AtlasOfLivingAustralia/la-pipelines/issues/105
-    System.exit(0);
   }
 
   public static void run(UUIDPipelineOptions options) throws Exception {
@@ -103,8 +101,11 @@ public class ALAUUIDMintingPipeline {
     MetricsHandler.deleteMetricsFile(options);
 
     // run the validation pipeline
-    log.info("Running validation pipeline");
-    ALAUUIDValidationPipeline.run(options);
+    // TODO: create issue
+    //  java.lang.IllegalStateException: Promise already completed.
+
+    //    log.info("Running validation pipeline");
+    //    ALAUUIDValidationPipeline.run(options);
 
     // check validation results
     ValidationResult validationResult = ValidationUtils.checkValidationFile(options);

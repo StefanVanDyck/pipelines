@@ -110,7 +110,11 @@ public class ALAVerbatimToInterpretedPipeline {
     PipelinesOptionsFactory.registerHdfs(options);
     run(options);
     // FIXME: Issue logged here: https://github.com/AtlasOfLivingAustralia/la-pipelines/issues/105
-    System.exit(0);
+    // 	 TODO: Create issue
+    // 24/08/21 13:15:55 ERROR Client: Application diagnostics message: Shutdown hook called before
+    // final status was reported.
+    // Exception in thread "main" org.apache.spark.SparkException: Application
+    // application_1724234906159_0021 finished with failed status
   }
 
   public static void run(ALAInterpretationPipelineOptions options) {

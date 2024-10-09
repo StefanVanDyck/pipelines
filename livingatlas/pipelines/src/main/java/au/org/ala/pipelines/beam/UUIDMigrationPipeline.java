@@ -73,7 +73,6 @@ public class UUIDMigrationPipeline {
     MDC.put("step", "UUID_MIGRATION");
     PipelinesOptionsFactory.registerHdfs(options);
     run(options);
-    System.exit(0);
   }
 
   public static void run(UUIDPipelineOptions options) throws Exception {
