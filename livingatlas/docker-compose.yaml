@@ -1,0 +1,15 @@
+services:
+
+  namematching:
+    image: 632683202044.dkr.ecr.eu-west-1.amazonaws.com/docker-hub/atlasoflivingaustralia/ala-namematching-service:v20210811-3
+    ports:
+      - "9180:9180"
+      - "9179:9179"
+    environment:
+      ENV: "gbif-backbone"
+
+  sds:
+    image: 632683202044.dkr.ecr.eu-west-1.amazonaws.com/docker-hub/charvolant/ala-sensitive-data-service:1.1.1-20210811-3
+    ports:
+      - "9190:9190"
+      - "9189:9189"

@@ -131,8 +131,6 @@ public class ALAVerbatimToInterpretedPipeline {
     VersionInfo.print();
     String[] combinedArgs = new CombinedYamlConfiguration(args).toArgs("general", "interpret");
     run(combinedArgs);
-    // FIXME: Issue logged here: https://github.com/AtlasOfLivingAustralia/la-pipelines/issues/105
-    System.exit(0);
   }
 
   public static void run(String[] args) {
@@ -423,7 +421,8 @@ public class ALAVerbatimToInterpretedPipeline {
         t -> PathBuilder.buildPathInterpretUsingTargetPath(options, term, t, id + AVRO_EXTENSION);
     Path path = new Path(pathFn.apply(transform.getBaseName()));
     FileSystem fs =
-        FileSystemFactory.getInstance(HdfsConfigs.create(options.getHdfsSiteConfig(), null))
+        FileSystemFactory.getInstance(
+                HdfsConfigs.create(options.getHdfsSiteConfig(), options.getCoreSiteConfig()))
             .getFs(path.toString());
     fs.mkdirs(path.getParent());
 

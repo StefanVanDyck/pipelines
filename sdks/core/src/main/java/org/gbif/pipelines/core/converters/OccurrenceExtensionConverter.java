@@ -15,6 +15,8 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.pipelines.io.avro.ExtendedRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * In case of sampling event occurrence records stored in extensions, this converter extracts
@@ -25,6 +27,8 @@ import org.gbif.pipelines.io.avro.ExtendedRecord;
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class OccurrenceExtensionConverter {
+
+  private static final Logger log = LoggerFactory.getLogger(OccurrenceExtensionConverter.class);
 
   public static List<ExtendedRecord> convert(ExtendedRecord er) {
 
@@ -76,6 +80,14 @@ public class OccurrenceExtensionConverter {
 
         // Extract occurrenceID and use it as map key
         String occurrenceId = rawExtensionData.get(DwcTerm.occurrenceID.qualifiedName());
+
+        // Total hack
+        if (occurrenceId == null) {
+          log.warn(
+              "No {} found in extension, using core record one",
+              DwcTerm.occurrenceID.qualifiedName());
+          occurrenceId = er.getCoreTerms().get(DwcTerm.occurrenceID.qualifiedName());
+        }
 
         Map<String, List<Map<String, String>>> parsedExtensions = result.get(occurrenceId);
 

@@ -69,7 +69,6 @@ public class PruneUnregisteredDatasets {
       System.exit(1);
     }
     m.run(config);
-    System.exit(0);
   }
 
   @SneakyThrows

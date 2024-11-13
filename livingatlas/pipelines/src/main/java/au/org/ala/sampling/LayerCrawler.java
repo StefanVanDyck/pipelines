@@ -63,8 +63,6 @@ public class LayerCrawler {
 
     LayerCrawler layerCrawler = new LayerCrawler();
     layerCrawler.run(options);
-    // FIXME: Issue logged here: https://github.com/AtlasOfLivingAustralia/la-pipelines/issues/105
-    System.exit(0);
   }
 
   public void run(SamplingPipelineOptions options) throws Exception {
@@ -113,7 +111,9 @@ public class LayerCrawler {
 
     log.info("Running sampling using lat lng files: {} ", latLngFiles.size());
     for (String inputFile : latLngFiles) {
-      crawl(fs, layerList, inputFile, sampleDownloadPath);
+      String fixedInput = inputFile.replaceFirst("hdfs://[^/]*", "");
+      log.warn("Running sampling for file {}", fixedInput);
+      crawl(fs, layerList, fixedInput, sampleDownloadPath);
     }
 
     log.info("Finished layer sampling. Downloads in CSV directory: {}", sampleDownloadPath);
@@ -141,7 +141,7 @@ public class LayerCrawler {
     if (options.getDatasetId() == null || "all".equals(options.getDatasetId())) {
       return options.getAllDatasetsInputPath() + "/latlng";
     }
-    return options.getInputPath()
+    return options.getInputPath().replace("hdfs:///", "hdfs://")
         + "/"
         + options.getDatasetId()
         + "/"
@@ -154,7 +154,7 @@ public class LayerCrawler {
     if (options.getDatasetId() == null || "all".equals(options.getDatasetId())) {
       return options.getAllDatasetsInputPath() + "/sampling/downloads";
     }
-    return options.getInputPath()
+    return options.getInputPath().replace("hdfs:///", "hdfs://")
         + "/"
         + options.getDatasetId()
         + "/"
@@ -171,7 +171,7 @@ public class LayerCrawler {
           + System.currentTimeMillis()
           + ".avro";
     }
-    return options.getInputPath()
+    return options.getInputPath().replace("hdfs:///", "hdfs://")
         + "/"
         + options.getDatasetId()
         + "/"
