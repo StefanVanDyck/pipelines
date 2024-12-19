@@ -74,6 +74,10 @@
       <id>typesafe-release</id>
       <url>https://repository.gbif.org/repository/typesafe/</url>
     </repository>
+    <repository>
+      <id>huawei-maven</id>
+      <url>https://repo.huaweicloud.com/repository/maven/huaweicloudsdk/</url>
+    </repository>
   </repositories>
   <pluginRepositories>
     <pluginRepository>
