@@ -16,10 +16,8 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.KeyValue;
-import org.apache.hadoop.hbase.client.Admin;
-import org.apache.hadoop.hbase.client.Connection;
-import org.apache.hadoop.hbase.client.ConnectionFactory;
-import org.apache.hadoop.hbase.client.HTable;
+import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.exceptions.IllegalArgumentIOException;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.mapreduce.HFileOutputFormat2;
@@ -30,6 +28,7 @@ import org.apache.hadoop.io.compress.SnappyCodec;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.spark.api.java.JavaPairRDD;
+import org.apache.spark.api.java.function.FlatMapFunction;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
@@ -84,7 +83,7 @@ public class Cluster implements Serializable {
           });
 
   public static void main(String[] args) throws IOException {
-    CommandLineParser.parse(args).build().run();
+    ArgsParser.parse(args).build().run();
   }
 
   /** Run the full process, generating relationships and refreshing the HBase table. */
@@ -96,6 +95,8 @@ public class Cluster implements Serializable {
             .appName("Occurrence clustering")
             .config("spark.sql.warehouse.dir", new File("spark-warehouse").getAbsolutePath())
             .enableHiveSupport()
+            .config("spark.sql.catalog.iceberg.type", "hive")
+            .config("spark.sql.catalog.iceberg", "org.apache.iceberg.spark.SparkCatalog")
             .getOrCreate();
     spark.sql("use " + hiveDB);
 
@@ -103,6 +104,10 @@ public class Cluster implements Serializable {
     Dataset<Row> relationships = generateRelationships(spark);
     generateHFiles(relationships);
     replaceHBaseTable();
+  }
+
+  private String sourceTableQualifiedName() {
+    return "iceberg." + hiveDB + "." + sourceTable;
   }
 
   /**
@@ -121,11 +126,11 @@ public class Cluster implements Serializable {
                     + "  recordNumber, fieldNumber, occurrenceID, otherCatalogNumbers, institutionCode, "
                     + "  collectionCode, catalogNumber "
                     + "FROM %s",
-                sourceTable));
+                sourceTableQualifiedName()));
     Dataset<Row> hashes =
         occurrences
             .flatMap(
-                row -> recordHashes(new RowOccurrenceFeatures(row)),
+                (FlatMapFunction<Row, Row>) row -> recordHashes(new RowOccurrenceFeatures(row)),
                 RowEncoder.apply(HASH_ROW_SCHEMA))
             .dropDuplicates();
     spark.sql("DROP TABLE IF EXISTS " + hiveTablePrefix + "_hashes");
@@ -198,11 +203,14 @@ public class Cluster implements Serializable {
                     + "FROM %s h"
                     + "  JOIN %s t1 ON h.id1 = t1.gbifID "
                     + "  JOIN %s t2 ON h.id2 = t2.gbifID",
-                hiveTablePrefix + "_candidates", sourceTable, sourceTable));
+                hiveTablePrefix + "_candidates",
+                sourceTableQualifiedName(),
+                sourceTableQualifiedName()));
 
     // Compare all candidate pairs and generate the relationships
     Dataset<Row> relationships =
-        pairs.flatMap(row -> relateRecords(row), RowEncoder.apply(RELATIONSHIP_SCHEMA));
+        pairs.flatMap(
+            (FlatMapFunction<Row, Row>) this::relateRecords, RowEncoder.apply(RELATIONSHIP_SCHEMA));
     spark.sql("DROP TABLE IF EXISTS " + hiveTablePrefix + "_relationships");
     relationships.write().format("parquet").saveAsTable(hiveTablePrefix + "_relationships");
     return relationships;
@@ -264,7 +272,7 @@ public class Cluster implements Serializable {
   private void replaceHBaseTable() throws IOException {
     Configuration conf = hadoopConf();
     try (Connection connection = ConnectionFactory.createConnection(conf);
-        HTable table = new HTable(conf, hbaseTable);
+        Table table = connection.getTable(TableName.valueOf(hbaseTable));
         Admin admin = connection.getAdmin()) {
       LoadIncrementalHFiles loader = new LoadIncrementalHFiles(conf);
 
@@ -281,16 +289,15 @@ public class Cluster implements Serializable {
       Instant start = Instant.now();
       admin.disableTable(table.getName());
       admin.truncateTable(table.getName(), true);
-      System.out.println(
-          String.format(
-              "Table[%s] truncated in %d ms",
-              hbaseTable, Duration.between(start, Instant.now()).toMillis()));
-      System.out.println(String.format("Loading table[%s] from [%s]", hbaseTable, targetDir));
-      loader.doBulkLoad(new Path(targetDir), table);
-      System.out.println(
-          String.format(
-              "Table [%s] truncated and reloaded in %d ms",
-              hbaseTable, Duration.between(start, Instant.now()).toMillis()));
+      System.out.printf(
+          "Table[%s] truncated in %d ms%n",
+          hbaseTable, Duration.between(start, Instant.now()).toMillis());
+      System.out.printf("Loading table[%s] from [%s]%n", hbaseTable, targetDir);
+      loader.doBulkLoad(
+          new Path(targetDir), admin, table, connection.getRegionLocator(table.getName()));
+      System.out.printf(
+          "Table [%s] truncated and reloaded in %d ms%n",
+          hbaseTable, Duration.between(start, Instant.now()).toMillis());
       removeTargetDir();
 
     } catch (Exception e) {
@@ -359,10 +366,13 @@ public class Cluster implements Serializable {
     conf.set("hbase.zookeeper.quorum", hbaseZK);
     conf.set(FileOutputFormat.COMPRESS, "true");
     conf.setClass(FileOutputFormat.COMPRESS_CODEC, SnappyCodec.class, CompressionCodec.class);
-    Job job = new Job(conf, "Clustering"); // name not actually used
-    HTable table = new HTable(conf, hbaseTable);
-    HFileOutputFormat2.configureIncrementalLoad(job, table);
-    return job.getConfiguration(); // job created a copy of the conf
+
+    try (Connection c = ConnectionFactory.createConnection(conf)) {
+      Job job = Job.getInstance(conf, "Clustering"); // name not actually used
+      Table table = c.getTable(TableName.valueOf(hbaseTable));
+      HFileOutputFormat2.configureIncrementalLoad(job, table, table.getRegionLocator());
+      return job.getConfiguration(); // job created a copy of the conf
+    }
   }
 
   /** Necessary as the Tuple2 does not implement a comparator in Java */

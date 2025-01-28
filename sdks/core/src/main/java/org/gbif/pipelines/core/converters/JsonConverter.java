@@ -517,6 +517,7 @@ public class JsonConverter {
 
     return classificationBuilder.build();
   }
+
   /**
    * Creates a set of fields" kingdomKey, phylumKey, classKey, etc for convenient aggregation/facets
    */
