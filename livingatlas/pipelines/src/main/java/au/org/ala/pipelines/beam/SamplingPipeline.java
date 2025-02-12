@@ -200,9 +200,7 @@ public class SamplingPipeline {
 
     List<String> layersFiltered =
         Objects.requireNonNull(layers).stream()
-            .filter(
-                layer ->
-                    layer.getDt_added() != null && layer.getDt_added() > lastSamplingTime)
+            .filter(layer -> layer.getDt_added() != null && layer.getDt_added() > lastSamplingTime)
             .map(l -> String.valueOf(l.getId()))
             .collect(Collectors.toList());
 
