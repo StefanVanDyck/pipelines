@@ -31,7 +31,10 @@
       {"name":"group","type":["null","string"],"default":null,"doc":""},
       {"name":"formation","type":["null","string"],"default":null,"doc":""},
       {"name":"member","type":["null","string"],"default":null,"doc":""},
-      {"name":"bed","type":["null","string"],"default":null,"doc":""}
+      {"name":"bed","type":["null","string"],"default":null,"doc":""},
+      {"name":"range","type":["null","GeologicalRange"],"default":null,"doc":""},
+      {"name":"lithostratigraphy","type":{"type":"array","items":"string"},"default":[]},
+      {"name":"biostratigraphy","type":{"type":"array","items":"string"},"default":[]}
     ]
   },
   {
@@ -66,13 +69,13 @@
       {"name":"collectionKey","type":["null","string"],"default":null,"doc":""},
       {"name":"isClustered","type":["null","boolean"],"default":null,"doc":""},
       {"name":"basisOfRecord","type":["null","string"],"default":null,"doc":""},
-      {"name":"sex","type":["null","string"],"default":null,"doc":""},
+      {"name":"sex","type":["null","VocabularyConcept"],"default":null,"doc":""},
       {"name":"lifeStage","type":["null","VocabularyConcept"],"default":null,"doc":""},
       {"name":"establishmentMeans","type":["null","VocabularyConcept"],"default":null,"doc":""},
       {"name":"pathway","type":["null","VocabularyConcept"],"default":null,"doc":""},
       {"name":"degreeOfEstablishment","type":["null","VocabularyConcept"],"default":null,"doc":""},
       {"name":"individualCount","type":["null","int"],"default":null,"doc":""},
-      {"name":"typeStatus","type":{"type":"array","items":"string"},"default":[],"doc":""},
+      {"name":"typeStatus","type":["null","VocabularyConceptList"],"default":null,"doc":""},
       {"name":"typifiedName","type":["null","string"],"default":null,"doc":""},
       {"name":"references","type":["null","string"],"default":null,"doc":""},
       {"name":"preparations","type":{"type":"array","items":"string"},"default":[],"doc":""},

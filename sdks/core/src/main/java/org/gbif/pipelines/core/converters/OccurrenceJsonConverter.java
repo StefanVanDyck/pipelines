@@ -6,8 +6,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.Builder;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +28,7 @@ import org.gbif.pipelines.io.avro.TemporalRecord;
 import org.gbif.pipelines.io.avro.grscicoll.GrscicollRecord;
 import org.gbif.pipelines.io.avro.grscicoll.Match;
 import org.gbif.pipelines.io.avro.json.GeologicalContext;
+import org.gbif.pipelines.io.avro.json.GeologicalRange;
 import org.gbif.pipelines.io.avro.json.OccurrenceJsonRecord;
 
 @Slf4j
@@ -119,9 +123,7 @@ public class OccurrenceJsonConverter {
     // Simple
     builder
         .setBasisOfRecord(basic.getBasisOfRecord())
-        .setSex(basic.getSex())
         .setIndividualCount(basic.getIndividualCount())
-        .setTypeStatus(basic.getTypeStatus())
         .setTypifiedName(basic.getTypifiedName())
         .setSampleSizeValue(basic.getSampleSizeValue())
         .setSampleSizeUnit(basic.getSampleSizeUnit())
@@ -150,6 +152,9 @@ public class OccurrenceJsonConverter {
     JsonConverter.convertVocabularyConcept(basic.getDegreeOfEstablishment())
         .ifPresent(builder::setDegreeOfEstablishment);
     JsonConverter.convertVocabularyConcept(basic.getPathway()).ifPresent(builder::setPathway);
+    JsonConverter.convertVocabularyConceptList(basic.getTypeStatus())
+        .ifPresent(builder::setTypeStatus);
+    JsonConverter.convertVocabularyConcept(basic.getSex()).ifPresent(builder::setSex);
 
     // License
     JsonConverter.convertLicense(basic.getLicense()).ifPresent(builder::setLicense);
@@ -179,6 +184,16 @@ public class OccurrenceJsonConverter {
               .setMember(gx.getMember())
               .setBed(gx.getBed());
 
+      gcb.setLithostratigraphy(
+          Stream.of(gcb.getBed(), gcb.getFormation(), gcb.getGroup(), gcb.getMember())
+              .filter(Objects::nonNull)
+              .collect(Collectors.toList()));
+
+      gcb.setBiostratigraphy(
+          Stream.of(gcb.getLowestBiostratigraphicZone(), gcb.getHighestBiostratigraphicZone())
+              .filter(Objects::nonNull)
+              .collect(Collectors.toList()));
+
       JsonConverter.convertVocabularyConcept(gx.getEarliestEonOrLowestEonothem())
           .ifPresent(gcb::setEarliestEonOrLowestEonothem);
       JsonConverter.convertVocabularyConcept(gx.getLatestEonOrHighestEonothem())
@@ -199,6 +214,11 @@ public class OccurrenceJsonConverter {
           .ifPresent(gcb::setEarliestAgeOrLowestStage);
       JsonConverter.convertVocabularyConcept(gx.getLatestAgeOrHighestStage())
           .ifPresent(gcb::setLatestAgeOrHighestStage);
+
+      if (gx.getStartAge() != null && gx.getEndAge() != null) {
+        gcb.setRange(
+            GeologicalRange.newBuilder().setLte(gx.getStartAge()).setGt(gx.getEndAge()).build());
+      }
 
       builder.setGeologicalContext(gcb.build());
     }

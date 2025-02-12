@@ -12,6 +12,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.Schema;
@@ -425,7 +426,6 @@ public class OccurrenceHdfsRecordConverter {
     occurrenceHdfsRecord.setBasisofrecord(basicRecord.getBasisOfRecord());
     occurrenceHdfsRecord.setIndividualcount(basicRecord.getIndividualCount());
     occurrenceHdfsRecord.setReferences(basicRecord.getReferences());
-    occurrenceHdfsRecord.setSex(basicRecord.getSex());
     occurrenceHdfsRecord.setTypifiedname(basicRecord.getTypifiedName());
     occurrenceHdfsRecord.setOrganismquantity(basicRecord.getOrganismQuantity());
     occurrenceHdfsRecord.setOrganismquantitytype(basicRecord.getOrganismQuantityType());
@@ -440,11 +440,19 @@ public class OccurrenceHdfsRecordConverter {
     occurrenceHdfsRecord.setIdentifiedby(basicRecord.getIdentifiedBy());
     occurrenceHdfsRecord.setPreparations(basicRecord.getPreparations());
     occurrenceHdfsRecord.setSamplingprotocol(basicRecord.getSamplingProtocol());
-    occurrenceHdfsRecord.setTypestatus(basicRecord.getTypeStatus());
     occurrenceHdfsRecord.setIssequenced(basicRecord.getIsSequenced());
     occurrenceHdfsRecord.setAssociatedsequences(basicRecord.getAssociatedSequences());
 
     // Vocabulary controlled
+    Optional.ofNullable(basicRecord.getSex())
+        .ifPresent(
+            c ->
+                occurrenceHdfsRecord.setSex(
+                    Sex.newBuilder()
+                        .setConcept(c.getConcept())
+                        .setLineage(c.getLineage())
+                        .build()));
+
     Optional.ofNullable(basicRecord.getEstablishmentMeans())
         .ifPresent(
             c ->
@@ -480,6 +488,21 @@ public class OccurrenceHdfsRecordConverter {
                         .setConcept(c.getConcept())
                         .setLineage(c.getLineage())
                         .build()));
+
+    Optional.ofNullable(basicRecord.getTypeStatus())
+        .ifPresent(
+            c -> {
+              List<String> allConcepts =
+                  c.stream()
+                      .map(org.gbif.pipelines.io.avro.VocabularyConcept::getConcept)
+                      .collect(Collectors.toList());
+
+              List<String> allParents =
+                  c.stream().flatMap(c2 -> c2.getLineage().stream()).collect(Collectors.toList());
+
+              occurrenceHdfsRecord.setTypestatus(
+                  TypeStatus.newBuilder().setConcepts(allConcepts).setLineage(allParents).build());
+            });
 
     // Others
     Optional.ofNullable(basicRecord.getRecordedByIds())
@@ -606,6 +629,27 @@ public class OccurrenceHdfsRecordConverter {
       occurrenceHdfsRecord.setFormation(gc.getFormation());
       occurrenceHdfsRecord.setMember(gc.getMember());
       occurrenceHdfsRecord.setBed(gc.getBed());
+
+      occurrenceHdfsRecord.setLithostratigraphy(
+          Stream.of(gc.getBed(), gc.getFormation(), gc.getGroup(), gc.getMember())
+              .filter(Objects::nonNull)
+              .collect(Collectors.toList()));
+
+      occurrenceHdfsRecord.setBiostratigraphy(
+          Stream.of(gc.getLowestBiostratigraphicZone(), gc.getHighestBiostratigraphicZone())
+              .filter(Objects::nonNull)
+              .collect(Collectors.toList()));
+
+      if (gc.getStartAge() != null && gc.getEndAge() != null) {
+        Optional.ofNullable(gc.getStartAge())
+            .ifPresent(
+                s ->
+                    occurrenceHdfsRecord.setGeologicaltime(
+                        GeologicalTime.newBuilder()
+                            .setLte(gc.getStartAge())
+                            .setGt(gc.getEndAge())
+                            .build()));
+      }
     }
   }
 
@@ -649,7 +693,12 @@ public class OccurrenceHdfsRecordConverter {
           break;
       }
     } catch (Exception ex) {
-      log.error("Ignoring error setting field {}", avroField, ex);
+      log.error(
+          "Ignoring error setting field {}, field name {}, value. Exception: {}",
+          avroField,
+          fieldName,
+          value,
+          ex);
     }
   }
 

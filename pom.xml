@@ -10,7 +10,7 @@
 
   <groupId>org.gbif.pipelines</groupId>
   <artifactId>pipelines-parent</artifactId>
-  <version>2.19.0-SNAPSHOT</version>
+  <version>3.0.6-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <modules>
@@ -26,7 +26,7 @@
     <connection>scm:git:git@github.com:gbif/pipelines.git</connection>
     <url>https://github.com/gbif/pipelines</url>
     <developerConnection>scm:git:git@github.com:gbif/pipelines.git</developerConnection>
-    <tag>HEAD</tag>
+    <tag>pipelines-parent-3.0.2</tag>
   </scm>
 
   <distributionManagement>
@@ -74,11 +74,21 @@
       <id>typesafe-release</id>
       <url>https://repository.gbif.org/repository/typesafe/</url>
     </repository>
-    <repository>
-      <id>huawei-maven</id>
-      <url>https://repo.huaweicloud.com/repository/maven/huaweicloudsdk/</url>
-    </repository>
   </repositories>
+  <pluginRepositories>
+    <pluginRepository>
+      <id>gbif-central</id>
+      <url>https://repository.gbif.org/repository/central/</url>
+    </pluginRepository>
+    <pluginRepository>
+      <id>gbif-release</id>
+      <url>https://repository.gbif.org/repository/releases/</url>
+    </pluginRepository>
+    <pluginRepository>
+      <id>gbif-snapshot</id>
+      <url>https://repository.gbif.org/repository/snapshots/</url>
+    </pluginRepository>
+  </pluginRepositories>
 
   <properties>
     <!-- Common variables -->
@@ -96,18 +106,18 @@
 
     <!-- GBIF libraries -->
     <gbif-parsers.version>0.67</gbif-parsers.version>
-    <dwca-io.version>2.17-H3-SNAPSHOT</dwca-io.version>
-    <gbif-api.version>1.16.3</gbif-api.version>
-    <gbif-common.version>0.59</gbif-common.version>
-    <dwc-api.version>1.49-H3-SNAPSHOT</dwc-api.version>
-    <kvs.version>1.34-H3-SNAPSHOT</kvs.version>
-    <hbase-utils.version>0.14-H3-SNAPSHOT</hbase-utils.version>
-    <gbif-wrangler.version>0.5-SNAPSHOT</gbif-wrangler.version>
-    <gbif-occurrence.version>0.195.0-H3-SNAPSHOT</gbif-occurrence.version>
-    <vocabulary-lookup.version>1.0.0</vocabulary-lookup.version>
-    <registry.version>3.96.6.1-SNAPSHOT</registry.version>
-    <gbif-common-ws.version>1.26</gbif-common-ws.version>
-    <gbif-postal-service.version>1.9.0-SNAPSHOT</gbif-postal-service.version>
+    <dwca-io.version>3.0.0</dwca-io.version>
+    <gbif-api.version>2.0.0</gbif-api.version>
+    <gbif-common.version>0.60</gbif-common.version>
+    <dwc-api.version>2.0.0</dwc-api.version>
+    <kvs.version>2.0.0</kvs.version>
+    <hbase-utils.version>1.0.0</hbase-utils.version>
+    <gbif-wrangler.version>1.0.0</gbif-wrangler.version>
+    <gbif-occurrence.version>1.0.9</gbif-occurrence.version>
+    <vocabulary-lookup.version>2.0.3</vocabulary-lookup.version>
+    <registry.version>4.0.1</registry.version>
+    <gbif-common-ws.version>2.0.3</gbif-common-ws.version>
+    <gbif-postal-service.version>2.0.1</gbif-postal-service.version>
     <gbif-common-spreadsheet.version>0.2</gbif-common-spreadsheet.version>
 
     <!-- Main distributed libraries -->
@@ -118,7 +128,7 @@
     <hadoop.version>3.2.4</hadoop.version>
     <hbase.version>2.5.3-hadoop3</hbase.version>
     <curator.version>5.6.0</curator.version>
-    <spark.version>3.4.0</spark.version>
+    <spark.version>3.5.1</spark.version>
     <iceberg.version>1.4.3</iceberg.version>
 
     <scala.version>2.12.17</scala.version>
@@ -184,34 +194,15 @@
     <!-- Maven plugin -->
     <maven-plugin-api.version>3.8.6</maven-plugin-api.version>
     <maven-plugin-annotations.version>3.6.4</maven-plugin-annotations.version>
-    <jacoco-maven-plugin.version>0.8.8</jacoco-maven-plugin.version>
     <maven-plugin-plugin.version>3.9.0</maven-plugin-plugin.version>
+    <build-helper-maven.version>3.6.0</build-helper-maven.version>
 
     <!-- Plugins -->
-    <io.fabric8.version>0.33.0</io.fabric8.version>
     <googleJavaFormat.version>1.17.0</googleJavaFormat.version>
-
-    <!-- Sonar -->
-    <sonar.projectName>GBIF Pipelines</sonar.projectName>
-    <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
-    <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
-    <sonar.jacoco.reportPaths>${jacoco.merged.output.file}</sonar.jacoco.reportPaths>
-    <sonar.exclusions>**/java-generated/**,**/*Stub.java</sonar.exclusions>
-    <sonar.cpd.exclusions>**/java-generated/**,**/*Stub.java</sonar.cpd.exclusions>
-    <sonar.coverage.exclusions>**/java-generated/**,**/*Stub.java</sonar.coverage.exclusions>
-    <sonar.language>java</sonar.language>
 
     <!-- Other -->
     <main.basedir>${project.basedir}</main.basedir>
     <release.tagNameBase>${project.artifactId}</release.tagNameBase>
-
-    <!-- JaCoCo -->
-    <coverage.dir>${project.basedir}/../target/coverage</coverage.dir>
-    <coverage.report.it.dir>${project.basedir}/../target/site/jacoco-it</coverage.report.it.dir>
-    <coverage.report.ut.dir>${project.basedir}/../target/site/jacoco-ut</coverage.report.ut.dir>
-    <jacoco.it.output.file>${coverage.dir}/jacoco-it.exec</jacoco.it.output.file>
-    <jacoco.ut.output.file>${coverage.dir}/jacoco-ut.exec</jacoco.ut.output.file>
-    <jacoco.merged.output.file>${coverage.dir}/jacoco.exec</jacoco.merged.output.file>
 
     <!-- Extensions and AVRO-->
     <namespace>org.gbif.pipelines.io.avro</namespace>
@@ -230,16 +221,26 @@
             <dependencySourceIncludes>
               <dependencySourceInclude>org.gbif:*</dependencySourceInclude>
             </dependencySourceIncludes>
+            <failOnError>false</failOnError>
           </configuration>
         </plugin>
         <plugin>
-          <groupId>org.jacoco</groupId>
-          <artifactId>jacoco-maven-plugin</artifactId>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>build-helper-maven-plugin</artifactId>
+          <version>${build-helper-maven.version}</version>
         </plugin>
         <plugin>
-          <groupId>io.fabric8</groupId>
-          <artifactId>docker-maven-plugin</artifactId>
-          <version>${io.fabric8.version}</version>
+          <groupId>com.diffplug.spotless</groupId>
+          <artifactId>spotless-maven-plugin</artifactId>
+          <version>${spotless-maven-plugin.version}</version>
+          <configuration combine.self="override">
+            <java>
+              <googleJavaFormat>
+                <version>${googleJavaFormat.version}</version>
+                <style>GOOGLE</style>
+              </googleJavaFormat>
+            </java>
+          </configuration>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -249,8 +250,20 @@
       </plugins>
     </pluginManagement>
     <plugins>
-
-
+      <plugin>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <!-- Runs in compile phase to fail fast in case of formatting issues.-->
+            <id>spotless-check</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 
@@ -1096,58 +1109,5 @@
 
     </dependencies>
   </dependencyManagement>
-
-  <profiles>
-    <profile>
-      <id>coverage</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.jacoco</groupId>
-            <artifactId>jacoco-maven-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>prepare-agent-ut</id>
-                <goals>
-                  <goal>prepare-agent</goal>
-                </goals>
-                <configuration>
-                  <destFile>${jacoco.ut.output.file}</destFile>
-                  <append>true</append>
-                  <includes>org.gbif.*,au.org.ala.*</includes>
-                  <propertyName>surefireArgLine</propertyName>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <dependencies>
-              <dependency>
-                <groupId>org.apache.maven.surefire</groupId>
-                <artifactId>surefire-junit47</artifactId>
-                <version>${maven-failsafe-plugin.version}</version>
-              </dependency>
-            </dependencies>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-    <profile>
-      <id>skip-coverage</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.jacoco</groupId>
-            <artifactId>jacoco-maven-plugin</artifactId>
-            <configuration>
-              <skip>true</skip>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 
 </project>

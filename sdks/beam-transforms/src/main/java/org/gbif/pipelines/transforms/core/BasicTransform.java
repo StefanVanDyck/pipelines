@@ -103,8 +103,8 @@ public class BasicTransform extends Transform<ExtendedRecord, BasicRecord> {
             .when(er -> !er.getCoreTerms().isEmpty())
             .via(BasicInterpreter::interpretBasisOfRecord)
             .via(BasicInterpreter::interpretTypifiedName)
-            .via(BasicInterpreter::interpretSex)
-            .via(BasicInterpreter::interpretTypeStatus)
+            .via(VocabularyInterpreter.interpretSex(vocabularyService))
+            .via(VocabularyInterpreter.interpretTypeStatus(vocabularyService))
             .via(BasicInterpreter::interpretIndividualCount)
             .via((e, r) -> CoreInterpreter.interpretReferences(e, r, r::setReferences))
             .via(BasicInterpreter::interpretOrganismQuantity)
@@ -131,16 +131,7 @@ public class BasicTransform extends Transform<ExtendedRecord, BasicRecord> {
             .via(BasicInterpreter::interpretIsSequenced)
             .via(BasicInterpreter::interpretAssociatedSequences)
             // Geological context
-            .via(GeologicalContextInterpreter::interpretEarliestEonOrLowestEonothem)
-            .via(GeologicalContextInterpreter::interpretLatestEonOrHighestEonothem)
-            .via(GeologicalContextInterpreter::interpretEarliestEraOrLowestErathem)
-            .via(GeologicalContextInterpreter::interpretLatestEraOrHighestErathem)
-            .via(GeologicalContextInterpreter::interpretEarliestPeriodOrLowestSystem)
-            .via(GeologicalContextInterpreter::interpretLatestPeriodOrHighestSystem)
-            .via(GeologicalContextInterpreter::interpretEarliestEpochOrLowestSeries)
-            .via(GeologicalContextInterpreter::interpretLatestEpochOrHighestSeries)
-            .via(GeologicalContextInterpreter::interpretEarliestAgeOrLowestStage)
-            .via(GeologicalContextInterpreter::interpretLatestAgeOrHighestStage)
+            .via(GeologicalContextInterpreter.interpretChronostratigraphy(vocabularyService))
             .via(GeologicalContextInterpreter::interpretLowestBiostratigraphicZone)
             .via(GeologicalContextInterpreter::interpretHighestBiostratigraphicZone)
             .via(GeologicalContextInterpreter::interpretGroup)
@@ -150,7 +141,7 @@ public class BasicTransform extends Transform<ExtendedRecord, BasicRecord> {
 
     if (useDynamicPropertiesInterpretation) {
       handler
-          .via(DynamicPropertiesInterpreter::interpretSex)
+          .via(DynamicPropertiesInterpreter.interpretSex(vocabularyService))
           .via(DynamicPropertiesInterpreter.interpretLifeStage(vocabularyService));
     }
 

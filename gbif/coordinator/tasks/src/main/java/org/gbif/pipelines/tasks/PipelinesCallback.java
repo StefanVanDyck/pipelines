@@ -2,6 +2,7 @@ package org.gbif.pipelines.tasks;
 
 import static org.gbif.common.messaging.api.messages.OccurrenceDeletionReason.NOT_SEEN_IN_LAST_CRAWL;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.google.common.annotations.VisibleForTesting;
 import io.github.resilience4j.core.IntervalFunction;
 import io.github.resilience4j.retry.Retry;
@@ -19,6 +20,7 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -73,6 +75,7 @@ public class PipelinesCallback<I extends PipelineBasedMessage, O extends Pipelin
           "registryCall",
           RetryConfig.custom()
               .maxAttempts(7)
+              .retryExceptions(JsonParseException.class, IOException.class, TimeoutException.class)
               .intervalFunction(IntervalFunction.ofExponentialBackoff(Duration.ofSeconds(6)))
               .build());
 
@@ -81,6 +84,7 @@ public class PipelinesCallback<I extends PipelineBasedMessage, O extends Pipelin
           "runningExecutionCall",
           RetryConfig.custom()
               .maxAttempts(7)
+              .retryExceptions(JsonParseException.class, IOException.class, TimeoutException.class)
               .intervalFunction(IntervalFunction.ofExponentialBackoff(Duration.ofSeconds(6)))
               .retryOnResult(Objects::isNull)
               .build());
@@ -94,7 +98,11 @@ public class PipelinesCallback<I extends PipelineBasedMessage, O extends Pipelin
               PipelineStep.Status.ABORTED));
 
   private static final Set<PipelineStep.Status> FINISHED_STATE_SET =
-      new HashSet<>(Arrays.asList(PipelineStep.Status.COMPLETED, PipelineStep.Status.ABORTED));
+      new HashSet<>(
+          Arrays.asList(
+              PipelineStep.Status.COMPLETED,
+              PipelineStep.Status.ABORTED,
+              PipelineStep.Status.FAILED));
 
   private static Properties properties;
   private final MessagePublisher publisher;
@@ -404,20 +412,21 @@ public class PipelinesCallback<I extends PipelineBasedMessage, O extends Pipelin
       Graph<StepType> workflow = PipelinesWorkflow.getWorkflow(containsOccurrences, containsEvents);
       nodeEdges = workflow.getNodeEdges(stepType);
     }
-    nodeEdges.forEach(
-        e -> {
-          PipelineStep step = info.pipelineStepMap.get(e.getNode());
-          if (step != null) {
-            step.setState(PipelineStep.Status.QUEUED);
-            // Call Registry to update
-            Runnable r =
-                () -> {
-                  log.info("History client: update pipeline step: {}", step);
-                  historyClient.updatePipelineStep(step);
-                };
-            Retry.decorateRunnable(RETRY, r).run();
-          }
-        });
+
+    for (Graph<StepType>.Edge e : nodeEdges) {
+      PipelineStep step = info.pipelineStepMap.get(e.getNode());
+      if (step != null) {
+        step.setState(PipelineStep.Status.QUEUED);
+        // Call Registry to update
+        Function<PipelineStep, Long> pipelineStepFn =
+            s -> {
+              log.info("History client: update pipeline step: {}", s);
+              return historyClient.updatePipelineStep(s);
+            };
+        long stepKey = Retry.decorateFunction(RETRY, pipelineStepFn).apply(step);
+        log.info("Step {} with step key {} as QUEUED", step.getType(), stepKey);
+      }
+    }
   }
 
   private void updateTrackingStatus(TrackingInfo ti, PipelineStep.Status status) {
@@ -452,12 +461,22 @@ public class PipelinesCallback<I extends PipelineBasedMessage, O extends Pipelin
     }
 
     try {
-      Runnable r =
-          () -> {
-            log.info("History client: update pipeline step: {}", pipelineStep);
-            historyClient.updatePipelineStep(pipelineStep);
+      Function<PipelineStep, Long> pipelineStepFn =
+          s -> {
+            log.info("History client: update pipeline step: {}", s);
+            PipelineStep step = historyClient.getPipelineStep(s.getKey());
+            if (FINISHED_STATE_SET.contains(step.getState())) {
+              return step.getKey();
+            }
+            return historyClient.updatePipelineStep(s);
           };
-      Retry.decorateRunnable(RETRY, r).run();
+      long stepKey = Retry.decorateFunction(RETRY, pipelineStepFn).apply(pipelineStep);
+      log.info(
+          "Step key {}, step type {} is {}",
+          stepKey,
+          pipelineStep.getType(),
+          pipelineStep.getState());
+
     } catch (Exception ex) {
       // we don't want to break the crawling if the tracking fails
       log.error(
