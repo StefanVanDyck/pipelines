@@ -6,8 +6,10 @@ import lombok.SneakyThrows;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.gbif.kvs.KeyValueStore;
 import org.gbif.kvs.conf.CachedHBaseKVStoreConfiguration;
-import org.gbif.kvs.geocode.LatLng;
+import org.gbif.kvs.conf.CachedHBaseKVStoreConfiguration.Builder;
+import org.gbif.kvs.geocode.GeocodeRequest;
 import org.gbif.kvs.hbase.HBaseKVStoreConfiguration;
+import org.gbif.kvs.hbase.LoaderRetryConfig;
 import org.gbif.kvs.hbase.ReadOnlyHBaseStore;
 import org.gbif.pipelines.core.config.model.KvConfig;
 import org.gbif.pipelines.core.functions.SerializableSupplier;
@@ -15,14 +17,14 @@ import org.gbif.pipelines.core.functions.SerializableSupplier;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class LocationFeatureKvStoreFactory {
 
-  public static SerializableSupplier<KeyValueStore<LatLng, String>> createSupplier(
+  public static SerializableSupplier<KeyValueStore<GeocodeRequest, String>> createSupplier(
       KvConfig kvConfig) {
     return () -> create(kvConfig);
   }
 
   @SneakyThrows
-  public static KeyValueStore<LatLng, String> create(KvConfig kvConfig) {
-    CachedHBaseKVStoreConfiguration hBaseKVStoreConfiguration =
+  public static KeyValueStore<GeocodeRequest, String> create(KvConfig kvConfig) {
+    Builder configBuilder =
         CachedHBaseKVStoreConfiguration.builder()
             .withValueColumnQualifier("json") // stores JSON data
             .withHBaseKVStoreConfiguration(
@@ -36,11 +38,20 @@ public class LocationFeatureKvStoreFactory {
                     .withHBaseZk(kvConfig.getZkConnectionString()) // HBase Zookeeper ensemble
                     .withHBaseZnode(kvConfig.getHbaseZnode())
                     .build())
-            .withCacheCapacity(15_000L)
-            .build();
+            .withCacheCapacity(25_000L);
 
-    return ReadOnlyHBaseStore.<LatLng, String>builder()
-        .withHBaseStoreConfiguration(hBaseKVStoreConfiguration.getHBaseKVStoreConfiguration())
+    KvConfig.LoaderRetryConfig retryConfig = kvConfig.getLoaderRetryConfig();
+    if (retryConfig != null) {
+      configBuilder.withLoaderRetryConfig(
+          new LoaderRetryConfig(
+              retryConfig.getMaxAttempts(),
+              retryConfig.getInitialIntervalMillis(),
+              retryConfig.getMultiplier(),
+              retryConfig.getRandomizationFactor()));
+    }
+
+    return ReadOnlyHBaseStore.<GeocodeRequest, String>builder()
+        .withHBaseStoreConfiguration(configBuilder.build().getHBaseKVStoreConfiguration())
         .withResultMapper(
             result -> Bytes.toString(result.getValue(Bytes.toBytes("v"), Bytes.toBytes("json"))))
         .build();

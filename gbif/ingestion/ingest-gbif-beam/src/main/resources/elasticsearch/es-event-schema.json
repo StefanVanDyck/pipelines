@@ -29,6 +29,8 @@
     "created": {"type": "date"},
     "uniqueKey": {"type": "keyword"},
     "firstLoaded": {"type": "date"},
+    "yearMonthGbifIdSort": {"type":  "long"},
+    "dnaSequenceID": {"type": "keyword", "copy_to": "all"},
 
     "metadata": {
       "type": "object",
@@ -65,14 +67,14 @@
           "properties": {
             "acceptedUsage": {
               "properties": {
-                "key": {"type": "long" },
+                "key": {"type": "keyword" },
                 "name": {"type": "text", "index":  false, "boost": 100.0, "copy_to": "all"},
                 "rank": {"type": "keyword", "index":  false}
               }
             },
             "classification": {
               "properties": {
-                "key": {"type": "long"},
+                "key": {"type": "keyword"},
                 "name": {"type": "text", "boost": 90.0, "copy_to": "all"},
                 "rank": {"type": "keyword"},
                 "synonym": {"type": "boolean"}
@@ -87,25 +89,25 @@
               }
             },
             "kingdom": {"type": "text"},
-            "kingdomKey": {"type": "long"},
+            "kingdomKey": {"type": "keyword"},
             "phylum": {"type": "text"},
-            "phylumKey": {"type": "long"},
+            "phylumKey": {"type": "keyword"},
             "class": {"type": "text"},
-            "classKey": {"type": "long"},
+            "classKey": {"type": "keyword"},
             "order": {"type": "text"},
-            "orderKey": {"type": "long"},
+            "orderKey": {"type": "keyword"},
             "family": {"type": "text"},
-            "familyKey": {"type": "long"},
+            "familyKey": {"type": "keyword"},
             "genus": {"type": "text"},
-            "genusKey": {"type": "long"},
+            "genusKey": {"type": "keyword"},
             "species": {"type": "text"},
-            "speciesKey": {"type": "long"},
+            "speciesKey": {"type": "keyword"},
             "synonym": {"type": "boolean"},
             "taxonID": {"type": "keyword"},
-            "taxonKey": {"type": "long"},
+            "taxonKey": {"type": "keyword"},
             "usage": {
               "properties": {
-                "key": {"type": "long"},
+                "key": {"type": "keyword"},
                 "name": {"type": "keyword", "boost": 100.0, "copy_to": "all", "normalizer": "lowercase_normalizer"},
                 "rank": {"type": "keyword"}
               }
@@ -196,9 +198,11 @@
         },
         "eventType": {
           "properties": {
-            "concept": {"type": "keyword"}
+            "concept": {"type": "keyword"},
+            "lineage": {"type": "keyword", "copy_to": "all"}
           }
         },
+        "verbatimEventType": { "type": "keyword" },
         "eventHierarchy": {
           "type": "text",
           "fields": {
@@ -207,12 +211,38 @@
             "verbatim": {"type": "keyword", "ignore_above": 1024}
           }
         },
+        "eventHierarchyJoined": {
+          "type": "text",
+          "fields": {
+            "keyword": {"type": "keyword", "ignore_above": 1024}
+          }
+        },
         "eventTypeHierarchy": {
           "type": "text",
           "fields": {
             "suggest": {"type": "completion", "analyzer": "lowercase_analyzer", "preserve_separators": true, "preserve_position_increments": true, "max_input_length": 50},
             "keyword": {"type": "keyword",  "normalizer": "lowercase_normalizer", "ignore_above": 1024},
             "verbatim": {"type": "keyword", "ignore_above": 1024}
+          }
+        },
+        "eventTypeHierarchyJoined": {
+          "type": "text",
+          "fields": {
+            "keyword": {"type": "keyword", "ignore_above": 1024}
+          }
+        },
+        "verbatimEventTypeHierarchy": {
+          "type": "text",
+          "fields": {
+            "suggest": {"type": "completion", "analyzer": "lowercase_analyzer", "preserve_separators": true, "preserve_position_increments": true, "max_input_length": 50},
+            "keyword": {"type": "keyword",  "normalizer": "lowercase_normalizer", "ignore_above": 1024},
+            "verbatim": {"type": "keyword", "ignore_above": 1024}
+          }
+        },
+        "verbatimEventTypeHierarchyJoined": {
+          "type": "text",
+          "fields": {
+            "keyword": {"type": "keyword", "ignore_above": 1024}
           }
         },
         "eventName": {
@@ -313,6 +343,8 @@
         "startDayOfYear": {"type": "short"},
         "endDayOfYear": {"type": "short"},
         "modified": {"type": "date"},
+
+        "fieldNumber": {"type": "keyword", "copy_to": "all"},
 
         "issues": {"type": "keyword"},
         "notIssues": {"type": "keyword"},
@@ -422,8 +454,16 @@
           "type": "keyword"
         },
         "sex": {
-          "type": "keyword",
-          "copy_to": "all"
+          "type": "object",
+          "properties": {
+            "concept": {
+              "type": "keyword"
+            },
+            "lineage": {
+              "type": "keyword",
+              "copy_to": "all"
+            }
+          }
         },
         "associatedSequences": {
           "type": "keyword",
@@ -481,8 +521,16 @@
           "type": "integer"
         },
         "typeStatus": {
-          "type": "keyword",
-          "copy_to": "all"
+          "type": "object",
+          "properties": {
+            "concept": {
+              "type": "keyword"
+            },
+            "lineage": {
+              "type": "keyword",
+              "copy_to": "all"
+            }
+          }
         },
         "typifiedName": {
           "type": "keyword",

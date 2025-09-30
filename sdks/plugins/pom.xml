@@ -5,7 +5,7 @@
   <parent>
     <artifactId>sdks</artifactId>
     <groupId>org.gbif.pipelines</groupId>
-    <version>2.19.0-SNAPSHOT</version>
+    <version>3.2.11-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -17,7 +17,7 @@
   <modules>
     <module>maven-avro-annotation-editor</module>
     <module>maven-extension-java-code-generator</module>
-    <module>maven-extension-avsc-schema-generator</module>
+    <module>maven-occurrence-avsc-schema-generator</module>
   </modules>
 
 </project>

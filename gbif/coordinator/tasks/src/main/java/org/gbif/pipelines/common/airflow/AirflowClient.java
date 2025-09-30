@@ -13,11 +13,14 @@
  */
 package org.gbif.pipelines.common.airflow;
 
+import static org.gbif.pipelines.common.utils.HttpUtils.*;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Builder;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
@@ -29,6 +32,8 @@ import org.gbif.pipelines.common.configs.AirflowConfiguration;
 @Slf4j
 @Builder
 public class AirflowClient {
+
+  private static final String DAG_RUN_ID = "dag_run_id";
 
   private final AirflowConfiguration configuration;
 
@@ -45,30 +50,26 @@ public class AirflowClient {
 
   @SneakyThrows
   public JsonNode createRun(AirflowBody body) {
-
     try (CloseableHttpClient client = HttpClients.createDefault()) {
       JsonNode dagRun = getRun(body.getDagRunId());
-      if (dagRun.has("dag_run_id")
-          && dagRun.get("dag_run_id").asText().equals(body.getDagRunId())) {
-        return clearRun(body.getDagRunId());
-      } else {
-        HttpPost post = new HttpPost(getUri(configuration));
-        StringEntity input = new StringEntity(MAPPER.writeValueAsString(body));
-        input.setContentType(ContentType.APPLICATION_JSON.toString());
-        post.setEntity(input);
-        post.setHeaders(configuration.getHeaders());
-        return MAPPER.readTree(client.execute(post).getEntity().getContent());
-      }
-    }
-  }
 
-  @SneakyThrows
-  public JsonNode clearRun(String dagRunId) {
-    try (CloseableHttpClient client = HttpClients.createDefault()) {
-      HttpPost post = new HttpPost(getUri(configuration, dagRunId) + "/clear");
-      post.setEntity(new StringEntity("{\"dry_run\": false}"));
+      // Delete dag_run_id to avoid issues with params cache
+      if (dagRun.has(DAG_RUN_ID) && dagRun.get(DAG_RUN_ID).asText().equals(body.getDagRunId())) {
+        log.info(
+            "dag_run_id {} exists. Deleting the run to avoid caching issues", body.getDagRunId());
+        HttpDelete delete = new HttpDelete(getUri(configuration, body.getDagRunId()));
+        delete.setHeaders(configuration.getHeaders());
+        checkUnavailableService(client.execute(delete));
+      }
+
+      log.info("Submit dag_run_id {}", body.getDagRunId());
+      HttpPost post = new HttpPost(getUri(configuration));
+      StringEntity input = new StringEntity(MAPPER.writeValueAsString(body));
+      input.setContentType(ContentType.APPLICATION_JSON.toString());
+      post.setEntity(input);
       post.setHeaders(configuration.getHeaders());
-      return MAPPER.readTree(client.execute(post).getEntity().getContent());
+      return MAPPER.readTree(
+          checkUnavailableService(client.execute(post)).getEntity().getContent());
     }
   }
 
@@ -77,7 +78,7 @@ public class AirflowClient {
     try (CloseableHttpClient client = HttpClients.createDefault()) {
       HttpGet get = new HttpGet(getUri(configuration, dagRunId));
       get.setHeaders(configuration.getHeaders());
-      return MAPPER.readTree(client.execute(get).getEntity().getContent());
+      return MAPPER.readTree(checkUnavailableService(client.execute(get)).getEntity().getContent());
     }
   }
 }

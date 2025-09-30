@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.gbif.api.model.Constants;
 import org.gbif.api.model.collections.lookup.Match.MatchType;
 import org.gbif.api.vocabulary.AgentIdentifierType;
 import org.gbif.api.vocabulary.BasisOfRecord;
@@ -21,37 +22,12 @@ import org.gbif.api.vocabulary.License;
 import org.gbif.api.vocabulary.MediaType;
 import org.gbif.api.vocabulary.OccurrenceIssue;
 import org.gbif.api.vocabulary.OccurrenceStatus;
-import org.gbif.api.vocabulary.Sex;
 import org.gbif.api.vocabulary.ThreatStatus;
-import org.gbif.api.vocabulary.TypeStatus;
 import org.gbif.dwc.terms.DcTerm;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.GbifTerm;
 import org.gbif.pipelines.core.utils.MediaSerDeser;
-import org.gbif.pipelines.io.avro.AgentIdentifier;
-import org.gbif.pipelines.io.avro.Authorship;
-import org.gbif.pipelines.io.avro.BasicRecord;
-import org.gbif.pipelines.io.avro.ClusteringRecord;
-import org.gbif.pipelines.io.avro.EventDate;
-import org.gbif.pipelines.io.avro.ExtendedRecord;
-import org.gbif.pipelines.io.avro.GeologicalContext;
-import org.gbif.pipelines.io.avro.IdentifierRecord;
-import org.gbif.pipelines.io.avro.IssueRecord;
-import org.gbif.pipelines.io.avro.LocationRecord;
-import org.gbif.pipelines.io.avro.MetadataRecord;
-import org.gbif.pipelines.io.avro.Multimedia;
-import org.gbif.pipelines.io.avro.MultimediaRecord;
-import org.gbif.pipelines.io.avro.NamePart;
-import org.gbif.pipelines.io.avro.NameType;
-import org.gbif.pipelines.io.avro.Nomenclature;
-import org.gbif.pipelines.io.avro.OccurrenceHdfsRecord;
-import org.gbif.pipelines.io.avro.ParsedName;
-import org.gbif.pipelines.io.avro.Rank;
-import org.gbif.pipelines.io.avro.RankedName;
-import org.gbif.pipelines.io.avro.State;
-import org.gbif.pipelines.io.avro.TaxonRecord;
-import org.gbif.pipelines.io.avro.TemporalRecord;
-import org.gbif.pipelines.io.avro.VocabularyConcept;
+import org.gbif.pipelines.io.avro.*;
 import org.gbif.pipelines.io.avro.grscicoll.GrscicollRecord;
 import org.gbif.pipelines.io.avro.grscicoll.Match;
 import org.junit.Assert;
@@ -91,9 +67,7 @@ public class OccurrenceHdfsRecordConverterTest {
     coreTerms.put(DwcTerm.datasetID.simpleName(), multiValue1 + "|" + multiValue2);
     coreTerms.put(DwcTerm.datasetName.simpleName(), multiValue1 + "|" + multiValue2);
     coreTerms.put(DwcTerm.otherCatalogNumbers.simpleName(), multiValue1 + "|" + multiValue2);
-    coreTerms.put(
-        DwcTerm.typeStatus.simpleName(),
-        TypeStatus.TYPE.name() + "|" + TypeStatus.TYPE_SPECIES.name());
+    coreTerms.put(DwcTerm.typeStatus.simpleName(), "Type|TypeSpecies");
     coreTerms.put(DwcTerm.preparations.simpleName(), multiValue1 + "|" + multiValue2);
     coreTerms.put(DwcTerm.samplingProtocol.simpleName(), multiValue1 + "|" + multiValue2);
     coreTerms.put(DwcTerm.identifiedBy.simpleName(), multiValue1 + "|" + multiValue2);
@@ -153,7 +127,16 @@ public class OccurrenceHdfsRecordConverterTest {
             .setIdentifiedBy(Arrays.asList(multiValue1, multiValue2))
             .setPreparations(Arrays.asList(multiValue1, multiValue2))
             .setSamplingProtocol(Arrays.asList(multiValue1, multiValue2))
-            .setTypeStatus(Arrays.asList(TypeStatus.TYPE.name(), TypeStatus.TYPE_SPECIES.name()))
+            .setTypeStatus(
+                Arrays.asList(
+                    VocabularyConcept.newBuilder()
+                        .setConcept("Type")
+                        .setLineage(Collections.singletonList("Type"))
+                        .build(),
+                    VocabularyConcept.newBuilder()
+                        .setConcept("TypeSpecies")
+                        .setLineage(Collections.singletonList("TypeSpecies"))
+                        .build()))
             .setProjectId(Arrays.asList(multiValue1, multiValue2))
             .setIsSequenced(true)
             .setAssociatedSequences(Collections.singletonList("ad"))
@@ -167,10 +150,13 @@ public class OccurrenceHdfsRecordConverterTest {
             .build();
 
     List<RankedName> classification = new ArrayList<>();
-    classification.add(RankedName.newBuilder().setName("CLASS").setRank(Rank.CLASS).build());
-    classification.add(RankedName.newBuilder().setName("ORDER").setRank(Rank.ORDER).build());
+    classification.add(
+        RankedName.newBuilder().setName("CLASS").setRank(Rank.CLASS.toString()).build());
+    classification.add(
+        RankedName.newBuilder().setName("ORDER").setRank(Rank.ORDER.toString()).build());
     TaxonRecord taxonRecord =
         TaxonRecord.newBuilder()
+            .setDatasetKey(Constants.NUB_DATASET_KEY.toString())
             .setCreated(
                 2L) // This value for lastParsed and lastInterpreted since is greater that the Basic
             // record created date
@@ -194,14 +180,25 @@ public class OccurrenceHdfsRecordConverterTest {
     IdentifierRecord identifierRecord =
         IdentifierRecord.newBuilder().setId("1").setInternalId("777").build();
 
+    DnaDerivedDataRecord dnaDerivedDataRecord =
+        DnaDerivedDataRecord.newBuilder()
+            .setId("1")
+            .setDnaDerivedDataItems(
+                Arrays.asList(
+                    DnaDerivedData.newBuilder().setDnaSequenceID("foo1").build(),
+                    DnaDerivedData.newBuilder().setDnaSequenceID("foo2").build()))
+            .build();
+
     // When
     OccurrenceHdfsRecord hdfsRecord =
         OccurrenceHdfsRecordConverter.builder()
             .basicRecord(basicRecord)
             .metadataRecord(metadataRecord)
-            .taxonRecord(taxonRecord)
+            .multiTaxonRecord(
+                MultiTaxonRecord.newBuilder().setTaxonRecords(List.of(taxonRecord)).build())
             .identifierRecord(identifierRecord)
             .temporalRecord(temporalRecord)
+            .dnaDerivedDataRecord(dnaDerivedDataRecord)
             .extendedRecord(extendedRecord)
             .build()
             .convert();
@@ -241,10 +238,12 @@ public class OccurrenceHdfsRecordConverterTest {
     Assert.assertEquals(Arrays.asList(multiValue1, multiValue2), hdfsRecord.getPreparations());
     Assert.assertEquals(multiValue1 + "|" + multiValue2, hdfsRecord.getVSamplingprotocol());
     Assert.assertEquals(Arrays.asList(multiValue1, multiValue2), hdfsRecord.getSamplingprotocol());
+    Assert.assertEquals("Type|TypeSpecies", hdfsRecord.getVTypestatus());
     Assert.assertEquals(
-        TypeStatus.TYPE.name() + "|" + TypeStatus.TYPE_SPECIES.name(), hdfsRecord.getVTypestatus());
-    Assert.assertEquals(
-        Arrays.asList(TypeStatus.TYPE.name(), TypeStatus.TYPE_SPECIES.name()),
+        org.gbif.pipelines.io.avro.TypeStatus.newBuilder()
+            .setConcepts(Arrays.asList("Type", "TypeSpecies"))
+            .setLineage(Arrays.asList("Type", "TypeSpecies"))
+            .build(),
         hdfsRecord.getTypestatus());
     Assert.assertEquals(Arrays.asList(multiValue1, multiValue2), hdfsRecord.getProjectid());
 
@@ -318,6 +317,11 @@ public class OccurrenceHdfsRecordConverterTest {
         hdfsRecord
             .getDwcaextension()
             .contains("http://data.ggbn.org/schemas/ggbn/terms/Amplification"));
+
+    // DNA
+    Assert.assertEquals(2, hdfsRecord.getDnasequenceid().size());
+    Assert.assertTrue(hdfsRecord.getDnasequenceid().contains("foo1"));
+    Assert.assertTrue(hdfsRecord.getDnasequenceid().contains("foo2"));
   }
 
   @Test
@@ -395,9 +399,22 @@ public class OccurrenceHdfsRecordConverterTest {
     long now = new Date().getTime();
     BasicRecord basicRecord = new BasicRecord();
     basicRecord.setBasisOfRecord(BasisOfRecord.HUMAN_OBSERVATION.name());
-    basicRecord.setSex(Sex.HERMAPHRODITE.name());
+    basicRecord.setSex(
+        VocabularyConcept.newBuilder()
+            .setConcept("Mixed")
+            .setLineage(Collections.singletonList("Mixed"))
+            .build());
     basicRecord.setIndividualCount(99);
-    basicRecord.setTypeStatus(Arrays.asList(TypeStatus.ALLOTYPE.name(), TypeStatus.TYPE.name()));
+    basicRecord.setTypeStatus(
+        Arrays.asList(
+            VocabularyConcept.newBuilder()
+                .setConcept("Type")
+                .setLineage(Collections.singletonList("Type"))
+                .build(),
+            VocabularyConcept.newBuilder()
+                .setConcept("Allotype")
+                .setLineage(Collections.singletonList("Allotype"))
+                .build()));
     basicRecord.setTypifiedName("noName");
     basicRecord.setLifeStage(
         VocabularyConcept.newBuilder()
@@ -434,10 +451,13 @@ public class OccurrenceHdfsRecordConverterTest {
 
     // Should
     Assert.assertEquals(BasisOfRecord.HUMAN_OBSERVATION.name(), hdfsRecord.getBasisofrecord());
-    Assert.assertEquals(Sex.HERMAPHRODITE.name(), hdfsRecord.getSex());
+    Assert.assertEquals("Mixed", hdfsRecord.getSex().getLineage().get(0));
     Assert.assertEquals(Integer.valueOf(99), hdfsRecord.getIndividualcount());
     Assert.assertEquals(
-        Arrays.asList(TypeStatus.ALLOTYPE.name(), TypeStatus.TYPE.name()),
+        org.gbif.pipelines.io.avro.TypeStatus.newBuilder()
+            .setConcepts(Arrays.asList("Type", "Allotype"))
+            .setLineage(Arrays.asList("Type", "Allotype"))
+            .build(),
         hdfsRecord.getTypestatus());
     Assert.assertEquals("noName", hdfsRecord.getTypifiedname());
     Assert.assertEquals(Double.valueOf(2d), hdfsRecord.getOrganismquantity());
@@ -463,33 +483,45 @@ public class OccurrenceHdfsRecordConverterTest {
     // State
     List<RankedName> classification = new ArrayList<>();
     classification.add(
-        RankedName.newBuilder().setKey(2).setRank(Rank.KINGDOM).setName("Archaea").build());
-    classification.add(
-        RankedName.newBuilder().setKey(79).setRank(Rank.PHYLUM).setName("Crenarchaeota").build());
+        RankedName.newBuilder()
+            .setKey(String.valueOf(2))
+            .setRank(Rank.KINGDOM.toString())
+            .setName("Archaea")
+            .build());
     classification.add(
         RankedName.newBuilder()
-            .setKey(8016360)
-            .setRank(Rank.ORDER)
+            .setKey(String.valueOf(79))
+            .setRank(Rank.PHYLUM.toString())
+            .setName("Crenarchaeota")
+            .build());
+    classification.add(
+        RankedName.newBuilder()
+            .setKey(String.valueOf(8016360))
+            .setRank(Rank.ORDER.toString())
             .setName("Acidilobales")
             .build());
     classification.add(
-        RankedName.newBuilder().setKey(292).setRank(Rank.CLASS).setName("Thermoprotei").build());
+        RankedName.newBuilder()
+            .setKey(String.valueOf(292))
+            .setRank(Rank.CLASS.toString())
+            .setName("Thermoprotei")
+            .build());
     classification.add(
         RankedName.newBuilder()
-            .setKey(7785)
-            .setRank(Rank.FAMILY)
+            .setKey(String.valueOf(7785))
+            .setRank(Rank.FAMILY.toString())
             .setName("Caldisphaeraceae")
             .build());
     classification.add(
         RankedName.newBuilder()
-            .setKey(1000002)
-            .setRank(Rank.GENUS)
+            .setKey(String.valueOf(1000002))
+            .setRank(Rank.GENUS.toString())
             .setName("Caldisphaera")
             .build());
     classification.add(
         RankedName.newBuilder()
-            .setKey(1000003)
-            .setRank(Rank.SPECIES)
+            .setKey(String.valueOf(1000003))
+            .setRank(Rank.SPECIES.toString())
             .setName("Caldisphaera lagunensis")
             .build());
 
@@ -513,13 +545,14 @@ public class OccurrenceHdfsRecordConverterTest {
             .build();
 
     TaxonRecord taxonRecord = new TaxonRecord();
-    RankedName rankedName =
-        RankedName.newBuilder()
-            .setKey(2492483)
-            .setRank(Rank.SPECIES)
+    RankedNameWithAuthorship rankedName =
+        RankedNameWithAuthorship.newBuilder()
+            .setKey(String.valueOf(2492483))
+            .setRank(Rank.SPECIES.toString())
             .setName("Caldisphaera lagunensis Itoh & al., 2003")
             .build();
 
+    taxonRecord.setDatasetKey(Constants.NUB_DATASET_KEY.toString());
     taxonRecord.setUsage(rankedName);
     taxonRecord.setUsage(rankedName);
     taxonRecord.setAcceptedUsage(rankedName);
@@ -530,34 +563,38 @@ public class OccurrenceHdfsRecordConverterTest {
 
     // When
     OccurrenceHdfsRecord hdfsRecord =
-        OccurrenceHdfsRecordConverter.builder().taxonRecord(taxonRecord).build().convert();
+        OccurrenceHdfsRecordConverter.builder()
+            .multiTaxonRecord(
+                MultiTaxonRecord.newBuilder().setTaxonRecords(List.of(taxonRecord)).build())
+            .build()
+            .convert();
 
     // Should
     Assert.assertEquals("Archaea", hdfsRecord.getKingdom());
-    Assert.assertEquals(Integer.valueOf(2), hdfsRecord.getKingdomkey());
+    Assert.assertEquals(String.valueOf(2), hdfsRecord.getKingdomkey());
 
     Assert.assertEquals("Crenarchaeota", hdfsRecord.getPhylum());
-    Assert.assertEquals(Integer.valueOf(79), hdfsRecord.getPhylumkey());
+    Assert.assertEquals(String.valueOf(79), hdfsRecord.getPhylumkey());
 
     Assert.assertEquals("Acidilobales", hdfsRecord.getOrder());
-    Assert.assertEquals(Integer.valueOf(8016360), hdfsRecord.getOrderkey());
+    Assert.assertEquals(String.valueOf(8016360), hdfsRecord.getOrderkey());
 
     Assert.assertEquals("Thermoprotei", hdfsRecord.getClass$());
-    Assert.assertEquals(Integer.valueOf(292), hdfsRecord.getClasskey());
+    Assert.assertEquals(String.valueOf(292), hdfsRecord.getClasskey());
 
     Assert.assertEquals("Caldisphaeraceae", hdfsRecord.getFamily());
-    Assert.assertEquals(Integer.valueOf(7785), hdfsRecord.getFamilykey());
+    Assert.assertEquals(String.valueOf(7785), hdfsRecord.getFamilykey());
 
     Assert.assertEquals("Caldisphaera", hdfsRecord.getGenus());
-    Assert.assertEquals(Integer.valueOf(1000002), hdfsRecord.getGenuskey());
+    Assert.assertEquals(String.valueOf(1000002), hdfsRecord.getGenuskey());
 
     Assert.assertEquals("Caldisphaera lagunensis", hdfsRecord.getSpecies());
-    Assert.assertEquals(Integer.valueOf(1000003), hdfsRecord.getSpecieskey());
+    Assert.assertEquals(String.valueOf(1000003), hdfsRecord.getSpecieskey());
 
     Assert.assertEquals("2492483", hdfsRecord.getAcceptednameusageid());
     Assert.assertEquals(
         "Caldisphaera lagunensis Itoh & al., 2003", hdfsRecord.getAcceptedscientificname());
-    Assert.assertEquals(Integer.valueOf(2492483), hdfsRecord.getAcceptedtaxonkey());
+    Assert.assertEquals(String.valueOf(2492483), hdfsRecord.getAcceptedtaxonkey());
 
     Assert.assertEquals("Caldisphaera", hdfsRecord.getGenericname());
     Assert.assertEquals("lagunensis", hdfsRecord.getSpecificepithet());
@@ -594,8 +631,8 @@ public class OccurrenceHdfsRecordConverterTest {
     Assert.assertEquals(Integer.valueOf(1), hdfsRecord.getDay());
     Assert.assertEquals(Integer.valueOf(1), hdfsRecord.getMonth());
     Assert.assertEquals(Integer.valueOf(2019), hdfsRecord.getYear());
-    Assert.assertEquals("1", hdfsRecord.getStartdayofyear());
-    Assert.assertEquals("1", hdfsRecord.getEnddayofyear());
+    Assert.assertEquals(Integer.valueOf(1), hdfsRecord.getStartdayofyear());
+    Assert.assertEquals(Integer.valueOf(1), hdfsRecord.getEnddayofyear());
     Assert.assertEquals("2019-01", hdfsRecord.getEventdate());
     Assert.assertEquals(eventDate, hdfsRecord.getDateidentified());
     Assert.assertEquals(eventDate, hdfsRecord.getModified());

@@ -1,16 +1,20 @@
 package org.gbif.pipelines.common.process;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.github.resilience4j.core.IntervalFunction;
 import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryConfig;
+import java.io.IOException;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import lombok.Builder;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.gbif.api.model.pipelines.PipelineStep.Status;
+import org.gbif.pipelines.common.PipelinesException;
 import org.gbif.pipelines.common.airflow.AirflowBody;
 import org.gbif.pipelines.common.airflow.AirflowClient;
 import org.gbif.pipelines.common.configs.AirflowConfiguration;
@@ -24,8 +28,15 @@ public class AirflowSparkLauncher {
       Retry.of(
           "airflowApiCall",
           RetryConfig.custom()
-              .maxAttempts(7)
-              .intervalFunction(IntervalFunction.ofExponentialBackoff(Duration.ofSeconds(6)))
+              .maxAttempts(20)
+              .retryExceptions(
+                  JsonParseException.class,
+                  IOException.class,
+                  TimeoutException.class,
+                  PipelinesException.class)
+              .intervalFunction(
+                  IntervalFunction.ofExponentialBackoff(
+                      Duration.ofSeconds(1), 2d, Duration.ofSeconds(40)))
               .build());
 
   private final SparkConfiguration sparkStaticConfiguration;
@@ -48,6 +59,9 @@ public class AirflowSparkLauncher {
     this.beamParameters = beamParameters;
     this.sparkAppName = sparkAppName;
     this.airflowClient = AirflowClient.builder().configuration(airflowConfiguration).build();
+
+    // add the app name to the beam params
+    beamParameters.put("appName", sparkAppName);
   }
 
   private AirflowBody getAirflowBody(String dagId) {
@@ -130,6 +144,7 @@ public class AirflowSparkLauncher {
   public void submitAwaitVoid() {
     Optional<Status> status = submitAwait();
     if (status.isEmpty() || status.get() == Status.ABORTED || status.get() == Status.FAILED) {
+      status.ifPresent(s -> log.warn(s.toString()));
       throw new IllegalStateException(
           "Process failed in distributed Job. Check K8s logs " + sparkAppName);
     } else {
@@ -141,18 +156,24 @@ public class AirflowSparkLauncher {
   public Optional<Status> getStatusByName(String dagId) {
     JsonNode jsonStatus = Retry.decorateFunction(AIRFLOW_RETRY, airflowClient::getRun).apply(dagId);
     String status = jsonStatus.get("state").asText();
-    if ("queued".equalsIgnoreCase(status)) {
+
+    if ("queued".equalsIgnoreCase(status)
+        || "scheduled".equalsIgnoreCase(status)
+        || "up_for_reschedule".equalsIgnoreCase(status)
+        || "deferred".equalsIgnoreCase(status)) {
       return Optional.of(Status.QUEUED);
     }
     if ("running".equalsIgnoreCase(status)
         || "rescheduled".equalsIgnoreCase(status)
+        || "restarting".equalsIgnoreCase(status)
+        || "up_for_retry".equalsIgnoreCase(status)
         || "retry".equalsIgnoreCase(status)) {
       return Optional.of(Status.RUNNING);
     }
     if ("success".equalsIgnoreCase(status)) {
       return Optional.of(Status.COMPLETED);
     }
-    if ("failed".equalsIgnoreCase(status)) {
+    if ("failed".equalsIgnoreCase(status) || "upstream_failed".equalsIgnoreCase(status)) {
       return Optional.of(Status.FAILED);
     }
     return Optional.empty();

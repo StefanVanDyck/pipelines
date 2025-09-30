@@ -1,6 +1,7 @@
 package org.gbif.pipelines.core.interpreters.core;
 
 import static org.gbif.api.vocabulary.OccurrenceIssue.REFERENCES_URI_INVALID;
+import static org.gbif.pipelines.core.utils.EventsUtils.*;
 import static org.gbif.pipelines.core.utils.ModelUtils.addIssue;
 import static org.gbif.pipelines.core.utils.ModelUtils.extractListValue;
 import static org.gbif.pipelines.core.utils.ModelUtils.extractNullAwareOptValue;
@@ -10,9 +11,12 @@ import static org.gbif.pipelines.core.utils.ModelUtils.extractValue;
 import com.google.common.base.Strings;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import lombok.AccessLevel;
@@ -25,6 +29,7 @@ import org.gbif.common.parsers.UrlParser;
 import org.gbif.dwc.terms.DcTerm;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.pipelines.core.parsers.vocabulary.VocabularyService;
+import org.gbif.pipelines.core.utils.VocabularyConceptFactory;
 import org.gbif.pipelines.io.avro.EventCoreRecord;
 import org.gbif.pipelines.io.avro.ExtendedRecord;
 import org.gbif.pipelines.io.avro.Issues;
@@ -106,6 +111,12 @@ public class CoreInterpreter {
         return;
       }
 
+      // Users can use the same eventId for parentEventID creating infinite loop
+      if (infinitLoopCheck(parentEventID, erWithParents)) {
+        addIssue(evr, "EVENT_ID_TO_PARENT_ID_LOOPING_ISSUE");
+        return;
+      }
+
       // parent event IDs
       List<Parent> parents = new ArrayList<>();
       int order = 1;
@@ -118,15 +129,27 @@ public class CoreInterpreter {
         }
 
         Parent.Builder parentBuilder = Parent.newBuilder().setId(parentEventID);
-        VocabularyInterpreter.interpretVocabulary(
-                DwcTerm.eventType, parentValues.get(DwcTerm.eventType.name()), vocabularyService)
-            .ifPresent(c -> parentBuilder.setEventType(c.getConcept()));
+        parentBuilder.setEventType(
+            VocabularyInterpreter.interpretVocabulary(
+                    DwcTerm.eventType,
+                    parentValues.get(DwcTerm.eventType.name()),
+                    vocabularyService)
+                .orElseGet(
+                    // allow the raw event type value through if not matched to vocab
+                    // this is useful as vocab is a WIP
+                    () ->
+                        VocabularyInterpreter.interpretVocabulary(
+                                DwcTerm.eventType, DEFAULT_EVENT_TYPE, vocabularyService)
+                            .orElse(
+                                VocabularyConceptFactory.createConcept(
+                                    DEFAULT_EVENT_TYPE,
+                                    Collections.emptyList(),
+                                    Collections.emptyMap())))
+                .getConcept());
 
-        // allow the raw event type value through if not matched to vocab
-        // this is useful as vocab is a WIP
-        if (parentBuilder.getEventType() == null) {
-          parentBuilder.setEventType(parentValues.get(DwcTerm.eventType.name()));
-        }
+        parentBuilder.setVerbatimEventType(
+            Optional.ofNullable(parentValues.get(DwcTerm.eventType.name()))
+                .orElse(DEFAULT_EVENT_TYPE));
 
         parentBuilder.setOrder(order++);
         parents.add(parentBuilder.build());
@@ -149,6 +172,29 @@ public class CoreInterpreter {
   /** {@link DwcTerm#locationID} interpretation. */
   public static void interpretLocationID(ExtendedRecord er, Consumer<String> consumer) {
     extractOptValue(er, DwcTerm.locationID).ifPresent(consumer);
+  }
+
+  /** Some parentEventID can have looped link */
+  private static boolean infinitLoopCheck(
+      String initialId, Map<String, Map<String, String>> erWithParents) {
+
+    Set<String> idSet = new HashSet<>();
+    idSet.add(initialId);
+    Map<String, String> nextMap = erWithParents.get(initialId);
+    while (nextMap != null) {
+      String nextId = nextMap.get(DwcTerm.parentEventID.name());
+      if (nextId == null) {
+        return false;
+      } else {
+        nextMap = erWithParents.get(nextId);
+      }
+      if (idSet.contains(nextId)) {
+        return true;
+      } else {
+        idSet.add(nextId);
+      }
+    }
+    return false;
   }
 
   /** Returns ENUM instead of url string */

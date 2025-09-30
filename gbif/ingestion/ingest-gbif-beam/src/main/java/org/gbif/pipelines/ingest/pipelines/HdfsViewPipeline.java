@@ -59,12 +59,14 @@ import org.gbif.pipelines.ingest.utils.SharedLockUtils;
 import org.gbif.pipelines.io.avro.AudubonRecord;
 import org.gbif.pipelines.io.avro.BasicRecord;
 import org.gbif.pipelines.io.avro.ClusteringRecord;
+import org.gbif.pipelines.io.avro.DnaDerivedDataRecord;
 import org.gbif.pipelines.io.avro.EventCoreRecord;
 import org.gbif.pipelines.io.avro.ExtendedRecord;
 import org.gbif.pipelines.io.avro.IdentifierRecord;
 import org.gbif.pipelines.io.avro.ImageRecord;
 import org.gbif.pipelines.io.avro.LocationRecord;
 import org.gbif.pipelines.io.avro.MetadataRecord;
+import org.gbif.pipelines.io.avro.MultiTaxonRecord;
 import org.gbif.pipelines.io.avro.MultimediaRecord;
 import org.gbif.pipelines.io.avro.OccurrenceHdfsRecord;
 import org.gbif.pipelines.io.avro.TaxonRecord;
@@ -74,10 +76,11 @@ import org.gbif.pipelines.transforms.core.BasicTransform;
 import org.gbif.pipelines.transforms.core.EventCoreTransform;
 import org.gbif.pipelines.transforms.core.GrscicollTransform;
 import org.gbif.pipelines.transforms.core.LocationTransform;
-import org.gbif.pipelines.transforms.core.TaxonomyTransform;
+import org.gbif.pipelines.transforms.core.MultiTaxonomyTransform;
 import org.gbif.pipelines.transforms.core.TemporalTransform;
 import org.gbif.pipelines.transforms.core.VerbatimTransform;
 import org.gbif.pipelines.transforms.extension.AudubonTransform;
+import org.gbif.pipelines.transforms.extension.DnaDerivedDataTransform;
 import org.gbif.pipelines.transforms.extension.ImageTransform;
 import org.gbif.pipelines.transforms.extension.MultimediaTransform;
 import org.gbif.pipelines.transforms.metadata.MetadataTransform;
@@ -203,7 +206,7 @@ public class HdfsViewPipeline {
     MetadataTransform metadataTransform = MetadataTransform.builder().create();
     VerbatimTransform verbatimTransform = VerbatimTransform.create();
     TemporalTransform temporalTransform = TemporalTransform.builder().create();
-    TaxonomyTransform taxonomyTransform = TaxonomyTransform.builder().create();
+    MultiTaxonomyTransform multiTaxonomyTransform = MultiTaxonomyTransform.builder().create();
     GrscicollTransform grscicollTransform = GrscicollTransform.builder().create();
     LocationTransform locationTransform = LocationTransform.builder().create();
     EventCoreTransform eventCoreTransform = EventCoreTransform.builder().create();
@@ -212,6 +215,7 @@ public class HdfsViewPipeline {
     MultimediaTransform multimediaTransform = MultimediaTransform.builder().create();
     AudubonTransform audubonTransform = AudubonTransform.builder().create();
     ImageTransform imageTransform = ImageTransform.builder().create();
+    DnaDerivedDataTransform dnaTransform = DnaDerivedDataTransform.builder().create();
 
     log.info("Adding step 3: Creating beam pipeline");
     PCollectionView<MetadataRecord> metadataView =
@@ -254,9 +258,9 @@ public class HdfsViewPipeline {
         p.apply("Read Location", locationTransform.read(interpretPathFn))
             .apply("Map Location to KV", locationTransform.toKv());
 
-    PCollection<KV<String, TaxonRecord>> taxonCollection =
-        p.apply("Read Taxon", taxonomyTransform.read(interpretPathFn))
-            .apply("Map Taxon to KV", taxonomyTransform.toKv());
+    PCollection<KV<String, MultiTaxonRecord>> multiTaxonCollection =
+        p.apply("Read Multi Taxon", multiTaxonomyTransform.read(interpretPathFn))
+            .apply("Map Multi Taxon to KV", multiTaxonomyTransform.toKv());
 
     PCollection<KV<String, GrscicollRecord>> grscicollCollection =
         coreTerm == DwcTerm.Event
@@ -275,6 +279,11 @@ public class HdfsViewPipeline {
     PCollection<KV<String, ImageRecord>> imageCollection =
         p.apply("Read Image", imageTransform.read(interpretPathFn))
             .apply("Map Image to KV", imageTransform.toKv());
+
+    // only reads them if they exist not to reinterpret the DNA extension for all the datasets
+    PCollection<KV<String, DnaDerivedDataRecord>> dnaCollection =
+        p.apply("Read DNA", dnaTransform.readIfExists(interpretPathFn))
+            .apply("Map DNA to KV", dnaTransform.toKv());
 
     PCollection<KV<String, AudubonRecord>> audubonCollection =
         p.apply("Read Audubon", audubonTransform.read(interpretPathFn))
@@ -299,10 +308,11 @@ public class HdfsViewPipeline {
             .basicRecordTag(basicTransform.getTag())
             .temporalRecordTag(temporalTransform.getTag())
             .locationRecordTag(locationTransform.getTag())
-            .taxonRecordTag(taxonomyTransform.getTag())
+            .multiTaxonRecordTag(multiTaxonomyTransform.getTag())
             .grscicollRecordTag(grscicollTransform.getTag())
             .multimediaRecordTag(multimediaTransform.getTag())
             .imageRecordTag(imageTransform.getTag())
+            .dnaRecordTag(dnaTransform.getTag())
             .audubonRecordTag(audubonTransform.getTag())
             .eventCoreRecordTag(eventCoreTransform.getTag())
             .metadataView(metadataView)
@@ -315,12 +325,13 @@ public class HdfsViewPipeline {
         .and(clusteringTransform.getTag(), clusteringCollection)
         .and(temporalTransform.getTag(), temporalCollection)
         .and(locationTransform.getTag(), locationCollection)
-        .and(taxonomyTransform.getTag(), taxonCollection)
+        .and(multiTaxonomyTransform.getTag(), multiTaxonCollection)
         .and(grscicollTransform.getTag(), grscicollCollection)
         .and(eventCoreTransform.getTag(), eventCoreCollection)
         // Extension
         .and(multimediaTransform.getTag(), multimediaCollection)
         .and(imageTransform.getTag(), imageCollection)
+        .and(dnaTransform.getTag(), dnaCollection)
         .and(audubonTransform.getTag(), audubonCollection)
         // Raw
         .and(verbatimTransform.getTag(), verbatimCollection)

@@ -1,6 +1,5 @@
-[![DEV - Build Status](https://builds.gbif.org/job/pipelines-dev/badge/icon?subject=DEV%20-%20Build%20Status&style=flat-square)](https://builds.gbif.org/job/pipelines-dev)
-[![DEV Release - Build Status](https://builds.gbif.org/job/pipelines-master/badge/icon?subject=Release%20-%20Build%20Status&style=flat-square)](https://builds.gbif.org/job/pipelines-master/)
-[![DEV - Smoking Tests Status](https://builds.gbif.org/buildStatus/icon?job=pipelines-dev2-smoke-testing&subject=DEV%20-%20Smoking%20tests%20status&style=flat-square)](https://builds.gbif.org/job/pipelines-dev2-smoke-testing/)
+[![DEV - Build Status](https://builds.gbif.org/job/pipelines-multibranch/job/dev/badge/icon?subject=dev%20-%20branch%20status&style=flat-square)](https://builds.gbif.org/job/pipelines-multibranch/job/dev)
+[![DEV Release - Build Status](https://builds.gbif.org/job/pipelines-multibranch/job/master/badge/icon?subject=master%20-%20branch%20status&style=flat-square)](https://builds.gbif.org/job/pipelines-multibranch/job/master)
 
 # Table of Contents
 
@@ -15,7 +14,7 @@
 
 # About the project
 
-*SUPPORTED JAVA 11 VERSION*
+*SUPPORTED JAVA 17 VERSION*
 
 **Pipelines for data processing and indexing of biodiversity data**
 
@@ -84,7 +83,6 @@ The project is structured as:
       - [**diagnostics**](./gbif/identifiers/diagnostics) - Internal tool to fix GBIF identifiers collisions
       - [**keygen**](./gbif/identifiers/keygen) - The library to generate GBIF identifiers, to support backward compatibility the codebase (with minimum changes) was copied from the occurrence/occurrence-persistence project
     - [**ingestion**](./gbif/ingestion) - Main pipelines workflow module
-      - [**clustering-gbif**](./gbif/ingestion/clustering-gbif) - Workflow to process occurrence data and establishes links between similar records
       - [**ingest-gbif-beam**](./gbif/ingestion/ingest-gbif-beam) - Main GBIF pipelines for ingestion of biodiversity data
       - [**ingest-gbif-fragmenter**](./gbif/ingestion/ingest-gbif-fragmenter) - Writes raw archive's data to HBase store
       - [**ingest-gbif-java**](./gbif/ingestion/ingest-gbif-java) - Implementation of **ingest-gbif-beam** Implementation of the ingest-gbif-beam module in Java-only ensures fast processing of small datasets utulizing only local JVM instance

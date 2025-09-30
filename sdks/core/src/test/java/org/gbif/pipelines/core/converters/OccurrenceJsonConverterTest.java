@@ -19,37 +19,10 @@ import org.gbif.api.vocabulary.License;
 import org.gbif.api.vocabulary.MediaType;
 import org.gbif.api.vocabulary.OccurrenceIssue;
 import org.gbif.api.vocabulary.OccurrenceStatus;
-import org.gbif.api.vocabulary.TypeStatus;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.GbifTerm;
 import org.gbif.pipelines.common.PipelinesVariables.Pipeline.Indexing;
-import org.gbif.pipelines.io.avro.AgentIdentifier;
-import org.gbif.pipelines.io.avro.Authorship;
-import org.gbif.pipelines.io.avro.BasicRecord;
-import org.gbif.pipelines.io.avro.ClusteringRecord;
-import org.gbif.pipelines.io.avro.Diagnostic;
-import org.gbif.pipelines.io.avro.EventDate;
-import org.gbif.pipelines.io.avro.ExtendedRecord;
-import org.gbif.pipelines.io.avro.GadmFeatures;
-import org.gbif.pipelines.io.avro.GeologicalContext;
-import org.gbif.pipelines.io.avro.IdentifierRecord;
-import org.gbif.pipelines.io.avro.LocationRecord;
-import org.gbif.pipelines.io.avro.MachineTag;
-import org.gbif.pipelines.io.avro.MetadataRecord;
-import org.gbif.pipelines.io.avro.Multimedia;
-import org.gbif.pipelines.io.avro.MultimediaRecord;
-import org.gbif.pipelines.io.avro.NamePart;
-import org.gbif.pipelines.io.avro.NameRank;
-import org.gbif.pipelines.io.avro.NameType;
-import org.gbif.pipelines.io.avro.NomCode;
-import org.gbif.pipelines.io.avro.ParsedName;
-import org.gbif.pipelines.io.avro.Rank;
-import org.gbif.pipelines.io.avro.RankedName;
-import org.gbif.pipelines.io.avro.State;
-import org.gbif.pipelines.io.avro.Status;
-import org.gbif.pipelines.io.avro.TaxonRecord;
-import org.gbif.pipelines.io.avro.TemporalRecord;
-import org.gbif.pipelines.io.avro.VocabularyConcept;
+import org.gbif.pipelines.io.avro.*;
 import org.gbif.pipelines.io.avro.grscicoll.GrscicollRecord;
 import org.gbif.pipelines.io.avro.grscicoll.Match;
 import org.junit.Test;
@@ -161,7 +134,11 @@ public class OccurrenceJsonConverterTest {
             .setRelativeOrganismQuantity(0.001d)
             .setLicense(License.CC_BY_NC_4_0.name())
             .setOccurrenceStatus(OccurrenceStatus.PRESENT.name())
-            .setSex("sex")
+            .setSex(
+                VocabularyConcept.newBuilder()
+                    .setConcept("sex")
+                    .setLineage(Collections.singletonList("sex"))
+                    .build())
             .setReferences("setReferences")
             .setTypifiedName("setTypifiedName")
             .setIndividualCount(10)
@@ -205,7 +182,7 @@ public class OccurrenceJsonConverterTest {
             .setIdentifiedBy(Arrays.asList(multivalue1, multivalue2))
             .setPreparations(Arrays.asList(multivalue1, "\u001E" + multivalue2))
             .setSamplingProtocol(Arrays.asList(multivalue1, multivalue2))
-            .setTypeStatus(Arrays.asList(TypeStatus.TYPE.name(), TypeStatus.TYPE_SPECIES.name()))
+            .setTypeStatus(Arrays.asList(vcFn.apply("Type"), vcFn.apply("TypeSpecies")))
             .setProjectId(Arrays.asList(multivalue1, multivalue2))
             .setGeologicalContext(
                 GeologicalContext.newBuilder()
@@ -225,6 +202,8 @@ public class OccurrenceJsonConverterTest {
                     .setFormation("test14")
                     .setMember("test15")
                     .setBed("test16")
+                    .setStartAge(350f)
+                    .setEndAge(300f)
                     .build())
             .build();
 
@@ -293,25 +272,61 @@ public class OccurrenceJsonConverterTest {
 
     List<RankedName> rankedNameList = new ArrayList<>();
 
-    RankedName synonym =
-        RankedName.newBuilder().setKey(10).setName("synonym").setRank(Rank.SPECIES).build();
-    RankedName au =
-        RankedName.newBuilder().setKey(11).setName("accepted usage").setRank(Rank.SPECIES).build();
+    RankedNameWithAuthorship synonym =
+        RankedNameWithAuthorship.newBuilder()
+            .setKey(String.valueOf(10))
+            .setName("synonym")
+            .setRank(Rank.SPECIES.toString())
+            .build();
+    RankedNameWithAuthorship au =
+        RankedNameWithAuthorship.newBuilder()
+            .setKey(String.valueOf(11))
+            .setName("accepted usage")
+            .setRank(Rank.SPECIES.toString())
+            .build();
 
     RankedName name1 =
-        RankedName.newBuilder().setKey(1).setName("KINGDOM").setRank(Rank.KINGDOM).build();
+        RankedName.newBuilder()
+            .setKey(String.valueOf(1))
+            .setName("KINGDOM")
+            .setRank(Rank.KINGDOM.toString())
+            .build();
     RankedName name2 =
-        RankedName.newBuilder().setKey(2).setName("PHYLUM").setRank(Rank.PHYLUM).build();
+        RankedName.newBuilder()
+            .setKey(String.valueOf(2))
+            .setName("PHYLUM")
+            .setRank(Rank.PHYLUM.toString())
+            .build();
     RankedName name3 =
-        RankedName.newBuilder().setKey(3).setName("CLASS").setRank(Rank.CLASS).build();
+        RankedName.newBuilder()
+            .setKey(String.valueOf(3))
+            .setName("CLASS")
+            .setRank(Rank.CLASS.toString())
+            .build();
     RankedName name4 =
-        RankedName.newBuilder().setKey(4).setName("ORDER").setRank(Rank.ORDER).build();
+        RankedName.newBuilder()
+            .setKey(String.valueOf(4))
+            .setName("ORDER")
+            .setRank(Rank.ORDER.toString())
+            .build();
     RankedName name5 =
-        RankedName.newBuilder().setKey(5).setName("FAMILY").setRank(Rank.FAMILY).build();
+        RankedName.newBuilder()
+            .setKey(String.valueOf(5))
+            .setName("FAMILY")
+            .setRank(Rank.FAMILY.toString())
+            .build();
     RankedName name6 =
-        RankedName.newBuilder().setKey(6).setName("GENUS").setRank(Rank.GENUS).build();
+        RankedName.newBuilder()
+            .setKey(String.valueOf(6))
+            .setName("GENUS")
+            .setRank(Rank.GENUS.toString())
+            .build();
     RankedName name7 =
-        RankedName.newBuilder().setKey(7).setName("SPECIES").setRank(Rank.SPECIES).build();
+        RankedName.newBuilder()
+            .setKey(String.valueOf(7))
+            .setName("SPECIES")
+            .setRank(Rank.SPECIES.toString())
+            .build();
 
     rankedNameList.add(name1);
     rankedNameList.add(name2);
@@ -343,6 +358,7 @@ public class OccurrenceJsonConverterTest {
     TaxonRecord tr =
         TaxonRecord.newBuilder()
             .setId("777")
+            .setDatasetKey(OccurrenceJsonConverter.GBIF_BACKBONE_DATASET_KEY)
             .setAcceptedUsage(au)
             .setClassification(rankedNameList)
             .setUsage(synonym)
@@ -448,6 +464,15 @@ public class OccurrenceJsonConverterTest {
             .setMultimediaItems(Arrays.asList(stillImage, movingImage))
             .build();
 
+    DnaDerivedDataRecord dnar =
+        DnaDerivedDataRecord.newBuilder()
+            .setId("777")
+            .setDnaDerivedDataItems(
+                Arrays.asList(
+                    DnaDerivedData.newBuilder().setDnaSequenceID("foo1").build(),
+                    DnaDerivedData.newBuilder().setDnaSequenceID("foo2").build()))
+            .build();
+
     // When
     String json =
         OccurrenceJsonConverter.builder()
@@ -458,9 +483,12 @@ public class OccurrenceJsonConverterTest {
             .verbatim(er)
             .temporal(tmr)
             .location(lr)
-            .taxon(tr)
+            .multiTaxon(MultiTaxonRecord.newBuilder().setTaxonRecords(List.of(tr)).build())
             .grscicoll(gr)
             .multimedia(mmr)
+            .dnaDerivedData(dnar)
+            .indexLegacyTaxonomy(true)
+            .indexMultiTaxonomy(true)
             .build()
             .toJsonWithNulls();
 
@@ -533,7 +561,7 @@ public class OccurrenceJsonConverterTest {
         "\"" + expectedMultivalue1 + "|" + multivalue2 + "\"",
         result.path(Indexing.SAMPLING_PROTOCOL_JOINED).toString());
     assertEquals(
-        "[\"" + TypeStatus.TYPE.name() + "\",\"" + TypeStatus.TYPE_SPECIES.name() + "\"]",
+        "{\"concepts\":[\"Type\",\"TypeSpecies\"],\"lineage\":[\"Type\",\"TypeSpecies\"]}",
         result.path(Indexing.TYPE_STATUS).toString());
 
     ArrayNode projectIdArray = (ArrayNode) result.path(Indexing.PROJECT_ID);
@@ -599,29 +627,7 @@ public class OccurrenceJsonConverterTest {
     assertEquals(expectedVerbatim, result.path("verbatim").toString());
 
     String expectedGbifClassification =
-        "{\"acceptedUsage\":{\"key\":11,\"guid\":null,\"name\":\"accepted usage\",\"rank\":\"SPECIES\"},"
-            + "\"classification\":[{\"key\":1,\"guid\":null,\"name\":\"KINGDOM\",\"rank\":\"KINGDOM\"},{\"key\":2,"
-            + "\"guid\":null,\"name\":\"PHYLUM\",\"rank\":\"PHYLUM\"},{\"key\":3,\"guid\":null,\"name\":\"CLASS\","
-            + "\"rank\":\"CLASS\"},{\"key\":4,\"guid\":null,\"name\":\"ORDER\",\"rank\":\"ORDER\"},{\"key\":5,"
-            + "\"guid\":null,\"name\":\"FAMILY\",\"rank\":\"FAMILY\"},{\"key\":6,\"guid\":null,\"name\":\"GENUS\","
-            + "\"rank\":\"GENUS\"},{\"key\":7,\"guid\":null,\"name\":\"SPECIES\",\"rank\":\"SPECIES\"}],"
-            + "\"classificationPath\":\"_1_2_3_4_5_6\",\"diagnostics\":{\"matchType\":\"EXACT\",\"note\":\"note\","
-            + "\"status\":\"ACCEPTED\"},\"kingdom\":\"KINGDOM\",\"kingdomKey\":\"1\",\"phylum\":\"PHYLUM\","
-            + "\"phylumKey\":\"2\",\"classKey\":\"3\",\"order\":\"ORDER\",\"orderKey\":\"4\",\"family\":\"FAMILY\","
-            + "\"familyKey\":\"5\",\"genus\":\"GENUS\",\"genusKey\":\"6\",\"species\":\"SPECIES\","
-            + "\"speciesKey\":\"7\",\"synonym\":true,\"taxonID\":\"taxonID\",\"taxonConceptID\":\"taxonConceptID\","
-            + "\"taxonKey\":[\"1\",\"2\",\"3\",\"4\",\"5\",\"6\",\"7\",\"10\",\"11\"],\"usage\":{\"key\":10,"
-            + "\"guid\":null,\"name\":\"synonym\",\"rank\":\"SPECIES\"},\"usageParsedName\":{\"abbreviated\":false,"
-            + "\"autonym\":false,\"basionymAuthorship\":{\"authors\":[\"setBasionymAuthorship\"],\"exAuthors\":["
-            + "\"setBasionymAuthorship\"],\"empty\":true,\"year\":\"2000\"},\"binomial\":false,\"candidatus\":false,"
-            + "\"code\":\"BACTERIAL\",\"combinationAuthorship\":{\"authors\":[\"setCombinationAuthorship\"],"
-            + "\"exAuthors\":[\"setCombinationAuthorship\"],\"empty\":false,\"year\":\"2020\"},\"doubtful\":false,"
-            + "\"genericName\":\"setGenus\",\"genus\":\"setGenus\",\"incomplete\":false,\"indetermined\":false,"
-            + "\"infraspecificEpithet\":\"infraspecificEpithet\",\"notho\":\"GENERIC\",\"rank\":\"ABERRATION\","
-            + "\"specificEpithet\":\"specificEpithet\",\"state\":\"COMPLETE\",\"terminalEpithet\":\"terminalEpithet\","
-            + "\"trinomial\":false,\"type\":\"HYBRID_FORMULA\",\"uninomial\":\"setUninomial\"},"
-            + "\"verbatimScientificName\":\"scientificName\",\"iucnRedListCategoryCode\":\"setIucnRedListCategoryCode\","
-            + "\"class\":\"CLASS\"}";
+        "{\"acceptedUsage\":{\"key\":\"11\",\"name\":\"accepted usage\",\"rank\":\"SPECIES\",\"authorship\":null},\"classification\":[{\"key\":\"1\",\"name\":\"KINGDOM\",\"rank\":\"KINGDOM\"},{\"key\":\"2\",\"name\":\"PHYLUM\",\"rank\":\"PHYLUM\"},{\"key\":\"3\",\"name\":\"CLASS\",\"rank\":\"CLASS\"},{\"key\":\"4\",\"name\":\"ORDER\",\"rank\":\"ORDER\"},{\"key\":\"5\",\"name\":\"FAMILY\",\"rank\":\"FAMILY\"},{\"key\":\"6\",\"name\":\"GENUS\",\"rank\":\"GENUS\"},{\"key\":\"7\",\"name\":\"SPECIES\",\"rank\":\"SPECIES\"}],\"classificationPath\":\"_1_2_3_4_5_6\",\"kingdom\":\"KINGDOM\",\"kingdomKey\":\"1\",\"phylum\":\"PHYLUM\",\"phylumKey\":\"2\",\"classKey\":\"3\",\"order\":\"ORDER\",\"orderKey\":\"4\",\"family\":\"FAMILY\",\"familyKey\":\"5\",\"genus\":\"GENUS\",\"genusKey\":\"6\",\"species\":\"SPECIES\",\"speciesKey\":\"7\",\"synonym\":true,\"taxonID\":\"taxonID\",\"taxonConceptID\":\"taxonConceptID\",\"taxonKey\":[\"1\",\"2\",\"3\",\"4\",\"5\",\"6\",\"7\",\"10\",\"11\"],\"usage\":{\"key\":\"10\",\"name\":\"synonym\",\"rank\":\"SPECIES\",\"authorship\":null},\"usageParsedName\":{\"genericName\":\"setGenus\",\"infraspecificEpithet\":\"infraspecificEpithet\",\"specificEpithet\":\"specificEpithet\"},\"verbatimScientificName\":\"scientificName\",\"iucnRedListCategoryCode\":\"setIucnRedListCategoryCode\",\"class\":\"CLASS\"}";
 
     assertEquals(expectedGbifClassification, result.path("gbifClassification").toString());
 
@@ -641,6 +647,9 @@ public class OccurrenceJsonConverterTest {
     assertEquals(institutionMatch.getKey(), result.path("institutionKey").asText());
 
     assertTrue(result.path("isSequenced").asBoolean());
+
+    // sort
+    assertTrue(result.path("yearMonthGbifIdSort").asLong() > 0);
 
     String expectedIssues =
         "[\"BASIS_OF_RECORD_INVALID\",\"INSTITUTION_MATCH_FUZZY\",\"ZERO_COORDINATE\"]";
@@ -674,7 +683,10 @@ public class OccurrenceJsonConverterTest {
             + "\"earliestAgeOrLowestStage\":{\"concept\":\"test9\",\"lineage\":[\"test9\"]},"
             + "\"latestAgeOrHighestStage\":{\"concept\":\"test10\",\"lineage\":[\"test10\"]},"
             + "\"lowestBiostratigraphicZone\":\"test11\",\"highestBiostratigraphicZone\":\"test12\","
-            + "\"group\":\"test13\",\"formation\":\"test14\",\"member\":\"test15\",\"bed\":\"test16\"}";
+            + "\"group\":\"test13\",\"formation\":\"test14\",\"member\":\"test15\",\"bed\":\"test16\","
+            + "\"range\":{\"gt\":300.0,\"lte\":350.0},"
+            + "\"lithostratigraphy\":[\"test16\",\"test14\",\"test13\",\"test15\"],"
+            + "\"biostratigraphy\":[\"test11\",\"test12\"]}";
     assertEquals(geologicalContextExpected, result.path("geologicalContext").toString());
   }
 
@@ -688,7 +700,11 @@ public class OccurrenceJsonConverterTest {
     BasicRecord br = BasicRecord.newBuilder().setId("777").build();
     TemporalRecord tmr = TemporalRecord.newBuilder().setId("777").build();
     LocationRecord lr = LocationRecord.newBuilder().setId("777").build();
-    TaxonRecord tr = TaxonRecord.newBuilder().setId("777").build();
+    TaxonRecord tr =
+        TaxonRecord.newBuilder()
+            .setId("777")
+            .setDatasetKey(OccurrenceJsonConverter.GBIF_BACKBONE_DATASET_KEY)
+            .build();
     GrscicollRecord gr = GrscicollRecord.newBuilder().setId("777").build();
     MultimediaRecord mmr = MultimediaRecord.newBuilder().setId("777").build();
 
@@ -702,9 +718,11 @@ public class OccurrenceJsonConverterTest {
             .verbatim(er)
             .temporal(tmr)
             .location(lr)
-            .taxon(tr)
+            .multiTaxon(MultiTaxonRecord.newBuilder().setTaxonRecords(List.of(tr)).build())
             .grscicoll(gr)
             .multimedia(mmr)
+            .indexLegacyTaxonomy(true)
+            .indexMultiTaxonomy(true)
             .build()
             .toJsonWithNulls();
 
