@@ -920,7 +920,7 @@
                   <shadedClassifierName>shaded</shadedClassifierName>
                   <artifactSet>
                     <excludes>
-                      <exclude>org.typelevel:spire</exclude>
+                      <exclude>org.typelevel:*</exclude>
                     </excludes>
                   </artifactSet>
                   <transformers>
