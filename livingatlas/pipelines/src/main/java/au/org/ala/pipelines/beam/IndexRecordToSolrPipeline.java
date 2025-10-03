@@ -515,7 +515,15 @@ public class IndexRecordToSolrPipeline {
       public void processElement(ProcessContext c) {
 
         KV<String, CoGbkResult> e = c.element();
-        IndexRecord indexRecord = e.getValue().getOnly(indexRecordTag, nullIndexRecord);
+        IndexRecord indexRecord;
+        try {
+          indexRecord = e.getValue().getOnly(indexRecordTag, nullIndexRecord);
+        } catch (IllegalArgumentException ex) {
+          if (ex.getMessage().contains("corresponds to a non-singleton result")) {
+            log.error("Non unique index-id: ", indexRecordTag.getId());
+          }
+          throw ex;
+        }
 
         if (indexRecord != null && !indexRecord.equals(nullIndexRecord)) {
 
