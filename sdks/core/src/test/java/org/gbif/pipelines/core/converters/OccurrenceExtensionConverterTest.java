@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.gbif.dwc.terms.DwcTerm;
+import org.gbif.dwc.terms.GbifTerm;
 import org.gbif.pipelines.io.avro.ExtendedRecord;
 import org.junit.Assert;
 import org.junit.Test;
@@ -95,10 +96,14 @@ public class OccurrenceExtensionConverterTest {
     // Set
     Map<String, List<Map<String, String>>> exts = new HashMap<>(2);
     exts.put(Occurrence.qualifiedName(), Collections.singletonList(occurrenceExtension));
-    exts.put(MeasurementOrFact.qualifiedName(), Arrays.asList(extMap, extMap));
+    exts.put(GbifTerm.Multimedia.qualifiedName(), Arrays.asList(extMap, extMap));
 
     ExtendedRecord extendedRecord =
-            ExtendedRecord.newBuilder().setId(occurrenceId).setCoreTerms(coreMap).setExtensions(exts).build();
+        ExtendedRecord.newBuilder()
+            .setId(occurrenceId)
+            .setCoreTerms(coreMap)
+            .setExtensions(exts)
+            .build();
 
     // When
     List<ExtendedRecord> result = OccurrenceExtensionConverter.convert(extendedRecord);
@@ -114,7 +119,7 @@ public class OccurrenceExtensionConverterTest {
 
     Assert.assertEquals(2, erResult.getExtensions().get(MeasurementOrFact.qualifiedName()).size());
     Assert.assertEquals(
-            1, erResult.getExtensions().get(MeasurementOrFact.qualifiedName()).get(0).size());
+        1, erResult.getExtensions().get(MeasurementOrFact.qualifiedName()).get(0).size());
 
     // coreId has the id reported in the Core
     Assert.assertEquals(occurrenceId, erResult.getCoreId());
