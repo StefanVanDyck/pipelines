@@ -20,6 +20,7 @@ public class GeocodeKvStoreFactory {
   private final KeyValueStore<LatLng, GeocodeResponse> countryKvStore;
   private final KeyValueStore<LatLng, GeocodeResponse> stateProvinceKvStore;
   private final KeyValueStore<LatLng, GeocodeResponse> biomeKvStore;
+  private final KeyValueStore<LatLng, GeocodeResponse> continentKvStore;
   private static volatile GeocodeKvStoreFactory instance;
   private static final Object MUTEX = new Object();
   private static final String BITMAP_EXT = ".png";
@@ -60,6 +61,11 @@ public class GeocodeKvStoreFactory {
     // missEqualsFail=false because not every point will be in a stateProvince
     this.stateProvinceKvStore =
         GeocodeKvStore.create(stateProvinceStore, stateCacheImage, "STATEPROVINCE", false);
+
+    KeyValueStore<LatLng, GeocodeResponse> continentStore =
+        ContinentKeyValueStore.create(config.getGeocodeConfig());
+
+    this.continentKvStore = GeocodeKvStore.create(continentStore, null, "CONTINENT", false);
 
     // Try to load from image file which has the same name of the SHP file
     BufferedImage biomeCacheImage =
@@ -111,5 +117,10 @@ public class GeocodeKvStoreFactory {
   public static SerializableSupplier<KeyValueStore<LatLng, GeocodeResponse>> createBiomeSupplier(
       ALAPipelinesConfig config) {
     return () -> getInstance(config).biomeKvStore;
+  }
+
+  public static SerializableSupplier<KeyValueStore<LatLng, GeocodeResponse>>
+    createContinentSupplier(ALAPipelinesConfig config) {
+    return () -> getInstance(config).continentKvStore;
   }
 }

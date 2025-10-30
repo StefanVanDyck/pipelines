@@ -37,12 +37,15 @@ public class LocationTransform extends Transform<ExtendedRecord, LocationRecord>
   private final SerializableSupplier<KeyValueStore<LatLng, GeocodeResponse>>
       stateProvinceKvStoreSupplier;
   private final SerializableSupplier<KeyValueStore<LatLng, GeocodeResponse>> biomeKvStoreSupplier;
+  private final SerializableSupplier<KeyValueStore<LatLng, GeocodeResponse>>
+      continentKvStoreSupplier;
   private final List<DateComponentOrdering> orderings;
   private final SerializableFunction<String, String> preprocessDateFn;
 
   private KeyValueStore<LatLng, GeocodeResponse> countryKvStore;
   private KeyValueStore<LatLng, GeocodeResponse> stateProvinceKvStore;
   private KeyValueStore<LatLng, GeocodeResponse> biomeKvStore;
+  private KeyValueStore<LatLng, GeocodeResponse> continentKvStore;
 
   private ALALocationInterpreter alaLocationInterpreter;
   private CentrePoints countryCentrePoints;
@@ -55,6 +58,7 @@ public class LocationTransform extends Transform<ExtendedRecord, LocationRecord>
       SerializableSupplier<KeyValueStore<LatLng, GeocodeResponse>> countryKvStoreSupplier,
       SerializableSupplier<KeyValueStore<LatLng, GeocodeResponse>> stateProvinceKvStoreSupplier,
       SerializableSupplier<KeyValueStore<LatLng, GeocodeResponse>> biomeKvStoreSupplier,
+      SerializableSupplier<KeyValueStore<LatLng, GeocodeResponse>> continentKvStoreSupplier,
       List<DateComponentOrdering> orderings,
       SerializableFunction<String, String> preprocessDateFn) {
 
@@ -67,6 +71,7 @@ public class LocationTransform extends Transform<ExtendedRecord, LocationRecord>
     this.countryKvStoreSupplier = countryKvStoreSupplier;
     this.stateProvinceKvStoreSupplier = stateProvinceKvStoreSupplier;
     this.biomeKvStoreSupplier = biomeKvStoreSupplier;
+    this.continentKvStoreSupplier = continentKvStoreSupplier;
     this.orderings = orderings;
     this.preprocessDateFn = preprocessDateFn;
   }
@@ -92,6 +97,10 @@ public class LocationTransform extends Transform<ExtendedRecord, LocationRecord>
     if (biomeKvStore == null && biomeKvStoreSupplier != null) {
       log.info("Initialize biomeKvStore");
       biomeKvStore = biomeKvStoreSupplier.get();
+    }
+    if (continentKvStore == null && continentKvStoreSupplier != null) {
+      log.info("Initialize continentKvStore");
+      continentKvStore = continentKvStoreSupplier.get();
     }
 
     countryCentrePoints = CountryCentrePoints.getInstance(alaConfig.getLocationInfoConfig());
@@ -132,6 +141,10 @@ public class LocationTransform extends Transform<ExtendedRecord, LocationRecord>
         log.info("Close biomeKvStore");
         biomeKvStore.close();
       }
+      if (continentKvStore != null) {
+        log.info("Close continentKvStore");
+        continentKvStore.close();
+      }
     } catch (IOException ex) {
       log.warn("Can't close geocodeKvStore - {}", ex.getMessage());
     }
@@ -157,7 +170,7 @@ public class LocationTransform extends Transform<ExtendedRecord, LocationRecord>
             .when(er -> !er.getCoreTerms().isEmpty())
             .via(LocationInterpreter.interpretCountryAndCoordinates(countryKvStore, null))
             .via(ALALocationInterpreter.interpretStateProvince(stateProvinceKvStore))
-            .via(LocationInterpreter.interpretContinent(countryKvStore))
+            .via(LocationInterpreter.interpretContinent(continentKvStore))
             .via(ALALocationInterpreter.interpretBiome(biomeKvStore))
             .via(LocationInterpreter::interpretWaterBody)
             .via(LocationInterpreter::interpretMinimumElevationInMeters)
