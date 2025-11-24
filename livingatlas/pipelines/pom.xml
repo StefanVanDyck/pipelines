@@ -292,6 +292,11 @@
       <version>${apache.beam.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.apache.beam</groupId>
+      <artifactId>beam-sdks-java-io-amazon-web-services</artifactId>
+      <version>${aws.beam.version}</version>
+    </dependency>
+    <dependency>
       <groupId>commons-configuration</groupId>
       <artifactId>commons-configuration</artifactId>
       <version>${commons-configuration.version}</version>
