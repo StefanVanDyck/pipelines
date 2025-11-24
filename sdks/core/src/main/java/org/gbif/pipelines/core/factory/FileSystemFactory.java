@@ -79,9 +79,9 @@ public class FileSystemFactory {
       if (hdfsPrefix != null && path.startsWith(hdfsPrefix)) {
         return hdfsFs;
       } else if (path.startsWith(FsUtils.HDFS_EMR_PREFIX)) {
-          return hdfsFs;
+        return hdfsFs;
       } else if (path.startsWith(FsUtils.S3_PREFIX)) {
-          return hdfsFs;
+        return hdfsFs;
       } else {
         return localFs;
       }
