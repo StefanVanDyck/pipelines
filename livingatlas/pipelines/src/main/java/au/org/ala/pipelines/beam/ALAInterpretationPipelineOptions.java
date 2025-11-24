@@ -1,10 +1,11 @@
 package au.org.ala.pipelines.beam;
 
+import org.apache.beam.sdk.io.aws.options.S3Options;
 import org.apache.beam.sdk.options.Default;
 import org.apache.beam.sdk.options.Description;
 import org.gbif.pipelines.common.beam.options.InterpretationPipelineOptions;
 
-public interface ALAInterpretationPipelineOptions extends InterpretationPipelineOptions {
+public interface ALAInterpretationPipelineOptions extends InterpretationPipelineOptions, S3Options {
 
   @Description("Events pipeline processing enabled")
   @Default.Boolean(true)
