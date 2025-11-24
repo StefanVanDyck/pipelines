@@ -57,8 +57,6 @@ public class ALAUUIDValidationPipeline {
     MDC.put("step", "VALIDATE_UUID");
     PipelinesOptionsFactory.registerHdfs(options);
     run(options);
-    // FIXME: Issue logged here: https://github.com/AtlasOfLivingAustralia/la-pipelines/issues/105
-    System.exit(0);
   }
 
   public static void run(UUIDPipelineOptions options) throws IOException {

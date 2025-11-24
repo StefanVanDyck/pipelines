@@ -109,8 +109,6 @@ public class ALAVerbatimToInterpretedPipeline {
     options.setMetaFileName(ValidationUtils.INTERPRETATION_METRICS);
     PipelinesOptionsFactory.registerHdfs(options);
     run(options);
-    // FIXME: Issue logged here: https://github.com/AtlasOfLivingAustralia/la-pipelines/issues/105
-    System.exit(0);
   }
 
   public static void run(ALAInterpretationPipelineOptions options) {
