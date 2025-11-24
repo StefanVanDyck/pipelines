@@ -142,7 +142,8 @@ public class ALAUUIDMintingPipeline {
     ALACollectoryMetadata collectoryMetadata = dataResourceKvStore.get(options.getDatasetId());
     if (collectoryMetadata.equals(ALACollectoryMetadata.EMPTY)) {
       log.error("Unable to retrieve dataset metadata for dataset: " + options.getDatasetId());
-      throw new RuntimeException("Unable to retrieve dataset metadata for dataset: " + options.getDatasetId());
+      throw new RuntimeException(
+          "Unable to retrieve dataset metadata for dataset: " + options.getDatasetId());
     }
 
     // construct unique list of darwin core terms
