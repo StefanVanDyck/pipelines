@@ -82,7 +82,6 @@ public class IndexRecordPipeline {
     String[] combinedArgs =
         new CombinedYamlConfiguration(args).toArgs("general", "speciesLists", "index");
     run(combinedArgs);
-    System.exit(0);
   }
 
   public static void run(String[] args) {
