@@ -8,6 +8,7 @@ import au.org.ala.utils.ValidationUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.io.File;
+import java.net.URI;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,6 +19,7 @@ import org.apache.beam.sdk.metrics.MetricQueryResults;
 import org.apache.beam.sdk.metrics.MetricResults;
 import org.apache.beam.sdk.metrics.MetricsFilter;
 import org.apache.commons.io.FileUtils;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.gbif.api.model.pipelines.StepType;
@@ -148,6 +150,7 @@ public class ALADwcaToVerbatimPipeline {
 
     String path = PathBuilder.buildDatasetAttemptPath(options, options.getMetaFileName(), false);
     FileSystem fs = FsUtils.getFileSystem(hdfsConfigs, path);
+    log.warn("PATH = {}, fs = {}", path, fs.getScheme());
     FsUtils.createFile(fs, path, mapper.writeValueAsString(properties));
   }
 }

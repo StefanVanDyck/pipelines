@@ -1,6 +1,6 @@
 package au.org.ala.pipelines.beam;
 
-import org.apache.beam.sdk.io.aws.options.S3Options;
+import org.apache.beam.sdk.io.aws2.options.S3Options;
 import org.apache.beam.sdk.options.Default;
 import org.apache.beam.sdk.options.Description;
 import org.gbif.pipelines.common.beam.options.InterpretationPipelineOptions;
