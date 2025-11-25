@@ -55,7 +55,7 @@ public class FileSystemFactory {
       this.hdfsFs = null;
     }
 
-    this.localFs = FileSystem.getLocal(new Configuration());
+    this.localFs = FileSystem.get(new Configuration());
   }
 
   public static FileSystemFactory getInstance(HdfsConfigs hdfsConfigs) {
@@ -74,9 +74,12 @@ public class FileSystemFactory {
   }
 
   public FileSystem getFs(String path) {
+    log.warn("PATH = {}", path);
     if (path != null) {
-      // using startsWith to allow for EMR style paths of hdfs:///
-      if (hdfsPrefix != null && path.startsWith(hdfsPrefix)) {
+      if (path.startsWith(FsUtils.S3_PREFIX)) {
+        return hdfsFs;
+        // using startsWith to allow for EMR style paths of hdfs:///
+      } else if (hdfsPrefix != null && path.startsWith(hdfsPrefix)) {
         return hdfsFs;
       } else if (path.startsWith(FsUtils.HDFS_EMR_PREFIX)) {
         return hdfsFs;
