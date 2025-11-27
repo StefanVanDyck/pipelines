@@ -77,11 +77,12 @@ public class FileSystemFactory {
     return new FileSystemFactory(hdfsConfigs);
   }
 
+  @SneakyThrows
   public FileSystem getFs(String path) {
     log.warn("PATH = {}", path);
     if (path != null) {
       if (path.startsWith(FsUtils.S3_PREFIX)) {
-        return hdfsFs;
+        return FileSystem.get(new URI(path), new Configuration());
         // using startsWith to allow for EMR style paths of hdfs:///
       } else if (hdfsPrefix != null && path.startsWith(hdfsPrefix)) {
         return hdfsFs;
