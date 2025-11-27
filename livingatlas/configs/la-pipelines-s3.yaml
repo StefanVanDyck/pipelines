@@ -154,6 +154,7 @@ dwca-avro:
   # Path of the input file
   inputPath: ./data/biocache-load/{datasetId}/{datasetId}.zip
   targetPath: 's3://inbo-vbp-dev-pipelines/data/pipelines-data/{datasetId}/0/verbatim'
+  tempLocation: /tmp/pipelines
 
 # class: au.org.ala.pipelines.beam.ALAVerbatimToInterpretedPipeline
 interpret:
