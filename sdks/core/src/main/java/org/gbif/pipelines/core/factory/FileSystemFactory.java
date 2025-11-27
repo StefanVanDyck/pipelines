@@ -33,6 +33,8 @@ public class FileSystemFactory {
       String hdfsPrefixToUse = getHdfsPrefix(hdfsConfigs);
       String corePrefixToUse = getHdfsPrefix(hdfsConfigs);
 
+      log.error("HDFS prefix: {}, {}", hdfsPrefixToUse, corePrefixToUse);
+
       String prefixToUse = null;
       if (!DEFAULT_FS.equals(hdfsPrefixToUse)) {
         prefixToUse = hdfsPrefixToUse;
@@ -54,6 +56,8 @@ public class FileSystemFactory {
       this.hdfsPrefix = null;
       this.hdfsFs = null;
     }
+
+    log.error("HDFS prefix: {}, {}", hdfsPrefix, this.hdfsFs);
 
     this.localFs = FileSystem.get(new Configuration());
   }
