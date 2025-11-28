@@ -81,15 +81,13 @@ public class FileSystemFactory {
   public FileSystem getFs(String path) {
     log.warn("PATH = {}", path);
     if (path != null) {
-      if (path.startsWith(FsUtils.S3_PREFIX)) {
-        return FileSystem.get(new URI(path), new Configuration());
-        // using startsWith to allow for EMR style paths of hdfs:///
-      } else if (hdfsPrefix != null && path.startsWith(hdfsPrefix)) {
+      if (hdfsPrefix != null && path.startsWith(hdfsPrefix)) {
         return hdfsFs;
       } else if (path.startsWith(FsUtils.HDFS_EMR_PREFIX)) {
         return hdfsFs;
       } else if (path.startsWith(FsUtils.S3_PREFIX)) {
-        return hdfsFs;
+        return FileSystem.get(
+            new URI(path.replaceFirst(FsUtils.S3_PREFIX, "s3a://")), new Configuration());
       } else {
         return localFs;
       }
