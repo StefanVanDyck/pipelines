@@ -335,7 +335,9 @@ public class PipelinesCallback<I extends PipelineBasedMessage, O extends Pipelin
                 .getAllNodesFor(Collections.singleton(stepType));
 
         PipelineExecution execution =
-            new PipelineExecution().setStepsToRun(stepTypes).setCreated(OffsetDateTime.now(ZoneOffset.UTC));
+            new PipelineExecution()
+                .setStepsToRun(stepTypes)
+                .setCreated(OffsetDateTime.now(ZoneOffset.UTC));
 
         Supplier<Long> executionIdSupplier =
             () -> {

@@ -1,5 +1,13 @@
 package org.gbif.pipelines.tasks;
 
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.gbif.api.model.common.paging.Pageable;
@@ -9,15 +17,6 @@ import org.gbif.api.model.pipelines.PipelineStep.Status;
 import org.gbif.api.model.pipelines.ws.PipelineProcessParameters;
 import org.gbif.api.model.pipelines.ws.RunAllParams;
 import org.gbif.registry.ws.client.pipelines.PipelinesHistoryClient;
-
-import javax.annotation.Nullable;
-import javax.validation.constraints.NotNull;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
-import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Getter
 @NoArgsConstructor(staticName = "create")

@@ -5,6 +5,7 @@ import java.io.File;
 import java.net.URI;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.beam.sdk.io.FileSystems;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.gbif.pipelines.common.PipelinesException;
@@ -79,12 +80,8 @@ public class FileSystemFactory {
 
   @SneakyThrows
   public FileSystem getFs(String path) {
-    log.warn("PATH = {}", path);
     if (path != null) {
-      if (path.startsWith(FsUtils.S3_PREFIX)) {
-        return FileSystem.get(new URI(path), new Configuration());
-        // using startsWith to allow for EMR style paths of hdfs:///
-      } else if (hdfsPrefix != null && path.startsWith(hdfsPrefix)) {
+      if (hdfsPrefix != null && path.startsWith(hdfsPrefix)) {
         return hdfsFs;
       } else if (path.startsWith(FsUtils.HDFS_EMR_PREFIX)) {
         return hdfsFs;
