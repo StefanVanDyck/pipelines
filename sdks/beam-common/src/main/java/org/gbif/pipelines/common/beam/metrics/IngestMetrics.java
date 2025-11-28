@@ -47,6 +47,6 @@ public class IngestMetrics {
                 })
             .collect(Collectors.toList());
 
-    return new DefaultMetricResults(counters, Collections.emptyList(), Collections.emptyList());
+    return new DefaultMetricResults(counters, Collections.emptyList(), Collections.emptyList(),Collections.emptyList(), Collections.emptyList(),Collections.emptyList());
   }
 }

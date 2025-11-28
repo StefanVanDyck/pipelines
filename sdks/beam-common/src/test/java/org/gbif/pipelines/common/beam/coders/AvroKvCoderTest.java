@@ -2,7 +2,7 @@ package org.gbif.pipelines.common.beam.coders;
 
 import static org.junit.Assert.*;
 
-import org.apache.beam.sdk.coders.AvroCoder;
+import org.apache.beam.sdk.extensions.avro.coders.AvroCoder;
 import org.apache.beam.sdk.coders.KvCoder;
 import org.apache.beam.sdk.coders.StringUtf8Coder;
 import org.gbif.pipelines.core.pojo.Edge;
