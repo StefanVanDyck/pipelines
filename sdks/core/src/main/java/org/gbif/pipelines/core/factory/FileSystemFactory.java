@@ -5,7 +5,6 @@ import java.io.File;
 import java.net.URI;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.beam.sdk.io.FileSystems;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.gbif.pipelines.common.PipelinesException;
@@ -86,7 +85,7 @@ public class FileSystemFactory {
       } else if (path.startsWith(FsUtils.HDFS_EMR_PREFIX)) {
         return hdfsFs;
       } else if (path.startsWith(FsUtils.S3_PREFIX)) {
-        return hdfsFs;
+        return FileSystem.get(new URI(path.replace("s3://", "s3a://")), new Configuration());
       } else {
         return localFs;
       }

@@ -7,6 +7,10 @@ import au.org.ala.utils.CombinedYamlConfiguration;
 import au.org.ala.utils.ValidationUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import java.io.File;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.PipelineResult;
@@ -14,7 +18,6 @@ import org.apache.beam.sdk.metrics.MetricQueryResults;
 import org.apache.beam.sdk.metrics.MetricResults;
 import org.apache.beam.sdk.metrics.MetricsFilter;
 import org.apache.commons.io.FileUtils;
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.gbif.api.model.pipelines.StepType;
@@ -24,15 +27,9 @@ import org.gbif.pipelines.common.beam.options.PipelinesOptionsFactory;
 import org.gbif.pipelines.common.beam.utils.PathBuilder;
 import org.gbif.pipelines.core.factory.FileSystemFactory;
 import org.gbif.pipelines.core.pojo.HdfsConfigs;
+import org.gbif.pipelines.core.utils.FsUtils;
 import org.gbif.pipelines.transforms.core.VerbatimTransform;
 import org.slf4j.MDC;
-
-import java.io.File;
-import java.io.OutputStream;
-import java.net.URI;
-import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
 
 /** Wrapper around DwcaToVerbatimPipeline to allow for Yaml config setup. */
 @Slf4j
@@ -143,12 +140,14 @@ public class ALADwcaToVerbatimPipeline {
         .forEach(x -> properties.put(x.getName().getName() + "Attempted", x.getAttempted()));
     properties.putAll(archiveProperties);
 
+    ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+
+    // create YAML
+    HdfsConfigs hdfsConfigs =
+        HdfsConfigs.create(options.getHdfsSiteConfig(), options.getCoreSiteConfig());
 
     String path = PathBuilder.buildDatasetAttemptPath(options, options.getMetaFileName(), false);
-    var fs = FileSystem.get(new URI(path), new Configuration());
-    try(OutputStream output = fs.create(new Path(path), true)) {
-      var mapper = new ObjectMapper(new YAMLFactory());
-      mapper.writeValue(output, properties);
-    }
+    FileSystem fs = FsUtils.getFileSystem(hdfsConfigs, path);
+    FsUtils.createFile(fs, path, mapper.writeValueAsString(properties));
   }
 }
