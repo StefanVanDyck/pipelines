@@ -43,7 +43,7 @@ copy:
 recordedByConfig:
   cacheSizeMb: 64
 alaNameMatch:
-  wsUrl: http://namematching-service.vbp.internal:9179
+  wsUrl: https://namematching.natuurdata.dev.inbo.be
   timeoutSec: 30
   retryConfig:
     maxAttempts: 5
@@ -52,14 +52,15 @@ sds:
   wsUrl: http://sensitive-data-service.vbp.internal:9189
   timeoutSec: 30
 collectory:
-  wsUrl: http://collectory.vbp.internal:8080/collectory/ws/
+  wsUrl: https://natuurdata.dev.inbo.be/collectory/ws/
   timeoutSec: 30
   retryConfig:
     maxAttempts: 10
     initialIntervalMillis: 10000
   httpHeaders:
-    Authorization: ${APIKEY}
-    apiKey: ${APIKEY}
+    Authorization: "aQ6G4eGA7d02xszHTt6V"
+    apiKey: "aQ6G4eGA7d02xszHTt6V"
+
 imageService:
   wsUrl: http://image-service.vbp.internal:8080/image-service/
   timeoutSec: 30
@@ -85,7 +86,7 @@ samplingService:
     initialIntervalMillis: 1000
 geocodeConfig:
   country:
-    path: /opt/inbo/pipelines/shp-layers/political
+    path: /home/stefan/Projects/Inbo/pipelines/data/pipelines-shp/political
     field: ISO_A2
     intersectBuffer: 0.135
     intersectMapping:
@@ -94,15 +95,15 @@ geocodeConfig:
       HM: AU
       NF: AU
   eez:
-    path: /opt/inbo/pipelines/shp-layers/eez
+    path: /home/stefan/Projects/Inbo/pipelines/data/pipelines-shp/eez
     field: ISO2
     intersectBuffer: 0.135
   stateProvince:
-    path: /opt/inbo/pipelines/shp-layers/cw_state_poly
+    path: /home/stefan/Projects/Inbo/pipelines/data/pipelines-shp/cw_state_poly
     field: FEATURE
     intersectBuffer: 0
   biome:
-    path: /opt/inbo/pipelines/shp-layers/gadm0
+    path: /home/stefan/Projects/Inbo/pipelines/data/pipelines-shp/gadm0
     field: FEATURE
 
 gbifConfig:
@@ -133,7 +134,7 @@ gbifConfig:
     - http://rs.gbif.org/terms/1.0/DNADerivedData
     - http://ala.org.au/terms/seedbank/0.1/SeedbankRecord
   vocabularyConfig:
-    vocabulariesPath: /opt/inbo/pipelines/pipelines-vocabularies/
+    vocabulariesPath: /home/stefan/Projects/Inbo/pipelines/livingatlas/pipelines/src/test/resources/vocabularies
     vocabulariesNames:
       http://rs.tdwg.org/dwc/terms/degreeOfEstablishment: DegreeOfEstablishment
       http://rs.tdwg.org/dwc/terms/lifeStage: LifeStage
