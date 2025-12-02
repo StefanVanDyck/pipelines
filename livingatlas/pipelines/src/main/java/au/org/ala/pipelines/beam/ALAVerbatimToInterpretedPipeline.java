@@ -299,6 +299,10 @@ public class ALAVerbatimToInterpretedPipeline {
 
     log.info("Deleting beam temporal folders");
     String tempPath = String.join("/", targetPath, datasetId, attempt.toString());
+    if (tempPath.startsWith(FsUtils.S3_PREFIX)) {
+      tempPath = tempPath.replaceFirst(FsUtils.S3_PREFIX, "s3a://");
+    }
+
     FsUtils.deleteDirectoryByPrefix(hdfsConfigs, tempPath, ".temp-beam");
 
     if (options.isEventsEnabled() && ArchiveUtils.isEventCore(options)) {
