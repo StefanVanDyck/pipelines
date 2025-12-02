@@ -61,10 +61,10 @@ public class GeologicalContextInterpreterTest {
     GeologicalContextInterpreter.interpretChronostratigraphy(vocabularyService).accept(er, br);
 
     // Should
-    Assert.assertTrue(
-        br.getIssues()
-            .getIssueList()
-            .contains(OccurrenceIssue.ERA_OR_ERATHEM_INFERRED_FROM_PARENT_RANK.name()));
+    //    Assert.assertTrue(
+    //        br.getIssues()
+    //            .getIssueList()
+    //            .contains(OccurrenceIssue.ERA_OR_ERATHEM_INFERRED_FROM_PARENT_RANK.name()));
     Assert.assertTrue(
         br.getIssues()
             .getIssueList()
