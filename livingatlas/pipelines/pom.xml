@@ -938,11 +938,6 @@
                     </transformer>
                   </transformers>
                   <relocations>
-                    <!-- Transient from core: conflicts with Beam on Spark -->
-                    <relocation>
-                      <pattern>com.fasterxml.jackson</pattern>
-                      <shadedPattern>j213.com.fasterxml.jackson</shadedPattern>
-                    </relocation>
                     <relocation>
                       <pattern>okhttp3</pattern>
                       <shadedPattern>o115.okhttp3</shadedPattern>
