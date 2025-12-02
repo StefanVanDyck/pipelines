@@ -77,7 +77,7 @@ public class FileSystemFactory {
   public FileSystem getFs(String path) {
     log.error("PATH = {}", path);
     if (path != null) {
-      if (path.startsWith(FsUtils.S3_PREFIX)) {
+      if (path.startsWith(FsUtils.S3_PREFIX) || path.startsWith("s3a://")) {
         return FileSystem.get(
             new URI(path.replaceFirst(FsUtils.S3_PREFIX, "s3a://")), new Configuration());
       } else if (hdfsPrefix != null && path.startsWith(hdfsPrefix)) {
