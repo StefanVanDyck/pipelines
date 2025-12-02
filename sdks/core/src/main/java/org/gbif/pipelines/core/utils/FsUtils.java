@@ -294,6 +294,10 @@ public final class FsUtils {
       // convert EMR style path hdfs:///mypath/123 to /mypath/123
       directoryPath = directoryPath.substring(7);
     }
+    if (directoryPath.startsWith(S3_PREFIX)) {
+      // convert s3 style path s3:///mypath/123 to s3a:///mypath/123
+      directoryPath = directoryPath.replaceFirst(S3_PREFIX, "s3a://");
+    }
     return directoryPath;
   }
 
