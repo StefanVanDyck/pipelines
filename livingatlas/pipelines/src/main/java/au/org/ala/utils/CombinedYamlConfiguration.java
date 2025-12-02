@@ -216,6 +216,6 @@ public class CombinedYamlConfiguration {
     Files.write(tempFile, combinedStr.getBytes(), StandardOpenOption.CREATE);
     tempFile.toFile().deleteOnExit();
 
-    return tempFile.toString();
+    return "file://" + tempFile.toString();
   }
 }
