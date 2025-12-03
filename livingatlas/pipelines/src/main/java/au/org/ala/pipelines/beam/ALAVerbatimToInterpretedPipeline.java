@@ -110,10 +110,6 @@ public class ALAVerbatimToInterpretedPipeline {
     options.setMetaFileName(ValidationUtils.INTERPRETATION_METRICS);
     PipelinesOptionsFactory.registerHdfs(options);
 
-    var s3Config = new Configuration(false);
-    s3Config.set("fs.s3.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem");
-    options.setHdfsConfiguration(Collections.singletonList(s3Config));
-
     run(options);
   }
 
