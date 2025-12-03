@@ -35,6 +35,7 @@ import org.apache.beam.sdk.transforms.Create;
 import org.apache.beam.sdk.transforms.View;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.PCollectionView;
+import org.apache.hadoop.conf.Configuration;
 import org.gbif.api.model.pipelines.StepType;
 import org.gbif.common.parsers.date.DateComponentOrdering;
 import org.gbif.dwc.terms.DwcTerm;
@@ -108,6 +109,11 @@ public class ALAVerbatimToInterpretedPipeline {
         PipelinesOptionsFactory.create(ALAInterpretationPipelineOptions.class, combinedArgs);
     options.setMetaFileName(ValidationUtils.INTERPRETATION_METRICS);
     PipelinesOptionsFactory.registerHdfs(options);
+
+    var s3Config = new Configuration(false);
+    s3Config.set("fs.s3.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem");
+    options.setHdfsConfiguration(Collections.singletonList(s3Config));
+
     run(options);
   }
 
