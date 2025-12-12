@@ -24,7 +24,7 @@ public class SamplingUtils {
 
   public static SamplingService initSamplingService(String baseUrl) {
     ObjectMapper om =
-        new ObjectMapper().setPropertyNamingStrategies(PropertyNamingStrategies.SNAKE_CASE);
+        new ObjectMapper().setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
     JacksonConverterFactory jcf = JacksonConverterFactory.create(om);
     // set up sampling service
     Retrofit retrofit = new Retrofit.Builder().baseUrl(baseUrl).addConverterFactory(jcf).build();
