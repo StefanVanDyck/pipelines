@@ -21,7 +21,7 @@ public class DistributionServiceImpl implements Serializable {
 
   private DistributionServiceImpl(String baseUrl) {
     ObjectMapper om =
-        new ObjectMapper().setPropertyNamingStrategies(PropertyNamingStrategies.SNAKE_CASE);
+        new ObjectMapper().setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
     JacksonConverterFactory jcf = JacksonConverterFactory.create(om);
     retrofit = new Retrofit.Builder().baseUrl(baseUrl).addConverterFactory(jcf).build();
     service = retrofit.create(DistributionService.class);
