@@ -110,7 +110,7 @@
     <dwca-io.version>3.0.1-SNAPSHOT</dwca-io.version>
     <gbif-api.version>2.2.1-SNAPSHOT</gbif-api.version>
     <gbif-common.version>0.60</gbif-common.version>
-    <dwc-api.version>2.1.7-SNAPSHOT</dwc-api.version>
+    <dwc-api.version>2.1.7</dwc-api.version>
     <kvs.version>3.0</kvs.version>
     <hbase-utils.version>1.0.0</hbase-utils.version>
     <gbif-wrangler.version>1.0.0</gbif-wrangler.version>
@@ -124,7 +124,7 @@
     <!-- Main distributed libraries -->
     <avro.version>1.11.1</avro.version>
     <!-- Beam can duplicate data in the index, before bumping the version please test next issue https://github.com/gbif/pipelines/issues/1042 -->
-    <apache.beam.version>2.34.0</apache.beam.version>
+    <apache.beam.version>2.38.0</apache.beam.version>
 
     <hadoop.version>3.2.4</hadoop.version>
     <hbase.version>2.5.3-hadoop3</hbase.version>
