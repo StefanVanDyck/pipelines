@@ -547,9 +547,7 @@ public class IndexRecordToSolrPipeline {
           if (ex.getMessage().contains("non-singleton result")) {
             var occurrenceIds =
                 Stream.ofAll(c.element().getValue().getAll(indexRecordTag))
-                    .map(
-                        value ->
-                            value.getId() + ": " + value.get(DwcTerm.occurrenceID.qualifiedName()))
+                    .map(value -> value.getId())
                     .collect(Collectors.joining(", "));
             throw new RuntimeException("Failed to process record with ids: " + occurrenceIds, ex);
           }
