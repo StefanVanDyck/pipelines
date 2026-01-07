@@ -33,6 +33,7 @@ public class ALACollectoryMetadata {
   String licenseVersion;
   String provenance;
   String dateCreated;
+  Boolean gbifDataset;
 
   ConnectionParameters connectionParameters;
   Map<String, String> defaultDarwinCoreValues;
