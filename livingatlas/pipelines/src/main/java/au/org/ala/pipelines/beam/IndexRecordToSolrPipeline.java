@@ -511,37 +511,42 @@ public class IndexRecordToSolrPipeline {
 
       @ProcessElement
       public void processElement(ProcessContext c) {
+        try {
 
-        KV<String, CoGbkResult> e = c.element();
-        IndexRecord indexRecord = e.getValue().getOnly(indexRecordTag, nullIndexRecord);
+          KV<String, CoGbkResult> e = c.element();
+          IndexRecord indexRecord = e.getValue().getOnly(indexRecordTag, nullIndexRecord);
 
-        if (indexRecord != null && !indexRecord.equals(nullIndexRecord)) {
+          if (indexRecord != null && !indexRecord.equals(nullIndexRecord)) {
 
-          JackKnifeOutlierRecord jackKnife = e.getValue().getOnly(jackKnifeTag, nullJkor);
-          Relationships clustering = e.getValue().getOnly(clusteringTag, nullClustering);
-          DistributionOutlierRecord outlierRecord = e.getValue().getOnly(outlierTag, nullOutlier);
-          RecordAnnotations annotationsRecord =
-              e.getValue().getOnly(annotationsTag, nullAnnotations);
+            JackKnifeOutlierRecord jackKnife = e.getValue().getOnly(jackKnifeTag, nullJkor);
+            Relationships clustering = e.getValue().getOnly(clusteringTag, nullClustering);
+            DistributionOutlierRecord outlierRecord = e.getValue().getOnly(outlierTag, nullOutlier);
+            RecordAnnotations annotationsRecord =
+                e.getValue().getOnly(annotationsTag, nullAnnotations);
 
-          if (jackKnife != null) {
-            addJackKnifeInfo(indexRecord, jackKnife);
+            if (jackKnife != null) {
+              addJackKnifeInfo(indexRecord, jackKnife);
+            }
+
+            if (clustering != null) {
+              addClusteringInfo(indexRecord, clustering);
+            }
+
+            if (outlierRecord != null) {
+              addOutlierInfo(indexRecord, outlierRecord);
+            }
+
+            if (annotationsRecord != null) {
+              addRecordAnnotationInfo(indexRecord, annotationsRecord);
+            }
+
+            c.output(KV.of(indexRecord.getId(), indexRecord));
+          } else {
+            log.error("Join null for key " + e.getKey());
           }
-
-          if (clustering != null) {
-            addClusteringInfo(indexRecord, clustering);
-          }
-
-          if (outlierRecord != null) {
-            addOutlierInfo(indexRecord, outlierRecord);
-          }
-
-          if (annotationsRecord != null) {
-            addRecordAnnotationInfo(indexRecord, annotationsRecord);
-          }
-
-          c.output(KV.of(indexRecord.getId(), indexRecord));
-        } else {
-          log.error("Join null for key " + e.getKey());
+        } catch (Exception e) {
+          throw new RuntimeException(
+              "Failed to process record with id: " + indexRecordTag.getId(), e);
         }
       }
     };
