@@ -16,6 +16,7 @@ import au.org.ala.utils.ALAFsUtils;
 import au.org.ala.utils.CombinedYamlConfiguration;
 import au.org.ala.utils.ValidationUtils;
 import com.google.common.collect.ImmutableMap;
+import io.vavr.collection.Stream;
 import java.util.*;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
@@ -512,41 +513,47 @@ public class IndexRecordToSolrPipeline {
       @ProcessElement
       public void processElement(ProcessContext c) {
         try {
-
           KV<String, CoGbkResult> e = c.element();
           IndexRecord indexRecord = e.getValue().getOnly(indexRecordTag, nullIndexRecord);
-
-          if (indexRecord != null && !indexRecord.equals(nullIndexRecord)) {
-
-            JackKnifeOutlierRecord jackKnife = e.getValue().getOnly(jackKnifeTag, nullJkor);
-            Relationships clustering = e.getValue().getOnly(clusteringTag, nullClustering);
-            DistributionOutlierRecord outlierRecord = e.getValue().getOnly(outlierTag, nullOutlier);
-            RecordAnnotations annotationsRecord =
-                e.getValue().getOnly(annotationsTag, nullAnnotations);
-
-            if (jackKnife != null) {
-              addJackKnifeInfo(indexRecord, jackKnife);
-            }
-
-            if (clustering != null) {
-              addClusteringInfo(indexRecord, clustering);
-            }
-
-            if (outlierRecord != null) {
-              addOutlierInfo(indexRecord, outlierRecord);
-            }
-
-            if (annotationsRecord != null) {
-              addRecordAnnotationInfo(indexRecord, annotationsRecord);
-            }
-
-            c.output(KV.of(indexRecord.getId(), indexRecord));
-          } else {
-            log.error("Join null for key " + e.getKey());
+        } catch (IllegalArgumentException ex) {
+          if (ex.getMessage().contains("non-singleton result")) {
+            var occurrenceIds =
+                Stream.ofAll(c.element().getValue().getAll(indexRecordTag))
+                    .map(
+                        value ->
+                            value.getId() + ": " + value.get(DwcTerm.occurrenceID.qualifiedName()))
+                    .collect(Collectors.joining(", "));
+            throw new RuntimeException("Failed to process record with ids: " + occurrenceIds, ex);
           }
-        } catch (Exception e) {
-          throw new RuntimeException(
-              "Failed to process record with id: " + indexRecordTag.getId(), e);
+          throw ex;
+        }
+        if (indexRecord != null && !indexRecord.equals(nullIndexRecord)) {
+
+          JackKnifeOutlierRecord jackKnife = e.getValue().getOnly(jackKnifeTag, nullJkor);
+          Relationships clustering = e.getValue().getOnly(clusteringTag, nullClustering);
+          DistributionOutlierRecord outlierRecord = e.getValue().getOnly(outlierTag, nullOutlier);
+          RecordAnnotations annotationsRecord =
+              e.getValue().getOnly(annotationsTag, nullAnnotations);
+
+          if (jackKnife != null) {
+            addJackKnifeInfo(indexRecord, jackKnife);
+          }
+
+          if (clustering != null) {
+            addClusteringInfo(indexRecord, clustering);
+          }
+
+          if (outlierRecord != null) {
+            addOutlierInfo(indexRecord, outlierRecord);
+          }
+
+          if (annotationsRecord != null) {
+            addRecordAnnotationInfo(indexRecord, annotationsRecord);
+          }
+
+          c.output(KV.of(indexRecord.getId(), indexRecord));
+        } else {
+          log.error("Join null for key " + e.getKey());
         }
       }
     };
