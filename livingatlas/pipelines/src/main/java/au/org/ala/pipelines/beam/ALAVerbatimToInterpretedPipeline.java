@@ -212,6 +212,13 @@ public class ALAVerbatimToInterpretedPipeline {
             .create();
 
     // ALA specific - Taxonomy
+    ALANameMatchConfig alaNameMatchConfig =
+        config.getAlaNameMatchConfig() != null
+            ? config.getAlaNameMatchConfig()
+            : new ALANameMatchConfig();
+    if (options.matchOnTaxonId().isPresent()) {
+      alaNameMatchConfig.setMatchOnTaxonID(options.matchOnTaxonId().get());
+    }
     ALATaxonomyTransform alaTaxonomyTransform =
         ALATaxonomyTransform.builder()
             .datasetId(datasetId)
@@ -219,10 +226,7 @@ public class ALAVerbatimToInterpretedPipeline {
             .kingdomCheckStoreSupplier(
                 ALANameCheckKVStoreFactory.getInstanceSupplier("kingdom", config))
             .dataResourceStoreSupplier(ALAAttributionKVStoreFactory.getInstanceSupplier(config))
-            .alaNameMatchConfig(
-                config.getAlaNameMatchConfig() != null
-                    ? config.getAlaNameMatchConfig()
-                    : new ALANameMatchConfig())
+            .alaNameMatchConfig(alaNameMatchConfig)
             .create();
 
     // ALA specific - Location

@@ -1,5 +1,6 @@
 package au.org.ala.pipelines.beam;
 
+import java.util.Optional;
 import org.apache.beam.sdk.io.aws2.options.S3Options;
 import org.apache.beam.sdk.options.Default;
 import org.apache.beam.sdk.options.Description;
@@ -12,4 +13,9 @@ public interface ALAInterpretationPipelineOptions extends InterpretationPipeline
   boolean isEventsEnabled();
 
   void setEventsEnabled(boolean eventsEnabled);
+
+  @Description("Match using raw taxon ID")
+  Optional<Boolean> matchOnTaxonId();
+
+  void setMatchOnTaxonId(boolean matchOnTaxonId);
 }

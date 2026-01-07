@@ -119,7 +119,7 @@ public class ALATaxonomyTransform extends Transform<ExtendedRecord, ALATaxonReco
         ALATaxonomyInterpreter.alaSourceQualityChecks(dataResource, kingdomCheckStore);
     BiConsumer<ExtendedRecord, ALATaxonRecord> interpret =
         ALATaxonomyInterpreter.alaTaxonomyInterpreter(
-            dataResource, nameMatchStore, dataResource.getGbifDataset());
+            dataResource, nameMatchStore, alaNameMatchConfig.getMatchOnTaxonID());
     BiConsumer<ExtendedRecord, ALATaxonRecord> resultCheck =
         ALATaxonomyInterpreter.alaResultQualityChecks(dataResource);
     Interpretation.from(source)
