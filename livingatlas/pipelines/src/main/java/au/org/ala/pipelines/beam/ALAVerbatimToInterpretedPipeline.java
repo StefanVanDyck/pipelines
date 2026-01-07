@@ -35,7 +35,6 @@ import org.apache.beam.sdk.transforms.Create;
 import org.apache.beam.sdk.transforms.View;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.PCollectionView;
-import org.apache.hadoop.conf.Configuration;
 import org.gbif.api.model.pipelines.StepType;
 import org.gbif.common.parsers.date.DateComponentOrdering;
 import org.gbif.dwc.terms.DwcTerm;
@@ -301,9 +300,6 @@ public class ALAVerbatimToInterpretedPipeline {
 
     log.info("Deleting beam temporal folders");
     String tempPath = String.join("/", targetPath, datasetId, attempt.toString());
-//    if (tempPath.startsWith(FsUtils.S3_PREFIX)) {
-//      tempPath = tempPath.replaceFirst(FsUtils.S3_PREFIX, "s3a://");
-//    }
 
     FsUtils.deleteDirectoryByPrefix(hdfsConfigs, tempPath, ".temp-beam");
 
