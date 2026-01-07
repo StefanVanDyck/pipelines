@@ -15,7 +15,7 @@ public interface ALAInterpretationPipelineOptions extends InterpretationPipeline
   void setEventsEnabled(boolean eventsEnabled);
 
   @Description("Match using raw taxon ID")
-  Optional<Boolean> matchOnTaxonId();
+  Optional<Boolean> getMatchOnTaxonId();
 
   void setMatchOnTaxonId(boolean matchOnTaxonId);
 }

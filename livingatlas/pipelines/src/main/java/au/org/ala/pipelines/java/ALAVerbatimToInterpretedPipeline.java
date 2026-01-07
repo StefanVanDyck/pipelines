@@ -276,8 +276,8 @@ public class ALAVerbatimToInterpretedPipeline {
         config.getAlaNameMatchConfig() != null
             ? config.getAlaNameMatchConfig()
             : new ALANameMatchConfig();
-    if (options.matchOnTaxonId().isPresent()) {
-      alaNameMatchConfig.setMatchOnTaxonID(options.matchOnTaxonId().get());
+    if (options.getMatchOnTaxonId().isPresent()) {
+      alaNameMatchConfig.setMatchOnTaxonID(options.getMatchOnTaxonId().get());
     }
     ALATaxonomyTransform alaTaxonomyTransform =
         ALATaxonomyTransform.builder()
