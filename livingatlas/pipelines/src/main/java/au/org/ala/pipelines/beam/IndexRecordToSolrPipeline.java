@@ -515,6 +515,34 @@ public class IndexRecordToSolrPipeline {
         try {
           KV<String, CoGbkResult> e = c.element();
           IndexRecord indexRecord = e.getValue().getOnly(indexRecordTag, nullIndexRecord);
+          if (indexRecord != null && !indexRecord.equals(nullIndexRecord)) {
+
+            JackKnifeOutlierRecord jackKnife = e.getValue().getOnly(jackKnifeTag, nullJkor);
+            Relationships clustering = e.getValue().getOnly(clusteringTag, nullClustering);
+            DistributionOutlierRecord outlierRecord = e.getValue().getOnly(outlierTag, nullOutlier);
+            RecordAnnotations annotationsRecord =
+                e.getValue().getOnly(annotationsTag, nullAnnotations);
+
+            if (jackKnife != null) {
+              addJackKnifeInfo(indexRecord, jackKnife);
+            }
+
+            if (clustering != null) {
+              addClusteringInfo(indexRecord, clustering);
+            }
+
+            if (outlierRecord != null) {
+              addOutlierInfo(indexRecord, outlierRecord);
+            }
+
+            if (annotationsRecord != null) {
+              addRecordAnnotationInfo(indexRecord, annotationsRecord);
+            }
+
+            c.output(KV.of(indexRecord.getId(), indexRecord));
+          } else {
+            log.error("Join null for key " + e.getKey());
+          }
         } catch (IllegalArgumentException ex) {
           if (ex.getMessage().contains("non-singleton result")) {
             var occurrenceIds =
@@ -526,34 +554,6 @@ public class IndexRecordToSolrPipeline {
             throw new RuntimeException("Failed to process record with ids: " + occurrenceIds, ex);
           }
           throw ex;
-        }
-        if (indexRecord != null && !indexRecord.equals(nullIndexRecord)) {
-
-          JackKnifeOutlierRecord jackKnife = e.getValue().getOnly(jackKnifeTag, nullJkor);
-          Relationships clustering = e.getValue().getOnly(clusteringTag, nullClustering);
-          DistributionOutlierRecord outlierRecord = e.getValue().getOnly(outlierTag, nullOutlier);
-          RecordAnnotations annotationsRecord =
-              e.getValue().getOnly(annotationsTag, nullAnnotations);
-
-          if (jackKnife != null) {
-            addJackKnifeInfo(indexRecord, jackKnife);
-          }
-
-          if (clustering != null) {
-            addClusteringInfo(indexRecord, clustering);
-          }
-
-          if (outlierRecord != null) {
-            addOutlierInfo(indexRecord, outlierRecord);
-          }
-
-          if (annotationsRecord != null) {
-            addRecordAnnotationInfo(indexRecord, annotationsRecord);
-          }
-
-          c.output(KV.of(indexRecord.getId(), indexRecord));
-        } else {
-          log.error("Join null for key " + e.getKey());
         }
       }
     };
