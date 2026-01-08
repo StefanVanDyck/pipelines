@@ -112,7 +112,7 @@ public class ALATaxonomyTransform extends Transform<ExtendedRecord, ALATaxonReco
   public void tearDown() {}
 
   @Override
-  public Optional<ALATaxonRecord> convert(ExtendedRecrd source) {
+  public Optional<ALATaxonRecord> convert(ExtendedRecord source) {
     ALACollectoryMetadata dataResource = this.dataResourceStore.get(datasetId);
     ALATaxonRecord tr = ALATaxonRecord.newBuilder().setId(source.getId()).build();
     BiConsumer<ExtendedRecord, ALATaxonRecord> sourceCheck =
