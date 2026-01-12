@@ -233,6 +233,7 @@ public class ALAVerbatimToInterpretedPipeline {
             .countryKvStoreSupplier(GeocodeKvStoreFactory.createCountrySupplier(config))
             .stateProvinceKvStoreSupplier(GeocodeKvStoreFactory.createStateProvinceSupplier(config))
             .biomeKvStoreSupplier(GeocodeKvStoreFactory.createBiomeSupplier(config))
+            .continentKvStoreSupplier(GeocodeKvStoreFactory.createContinentSupplier(config))
             .create();
 
     // ALA specific - Default values

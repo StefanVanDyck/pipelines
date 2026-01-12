@@ -25,12 +25,14 @@ public class GeocodeShpIntersectService {
   public static final String STATE_PROVINCE_LOCATION_TYPE = "StateProvince";
   public static final String POLITICAL_LOCATION_TYPE = "Political";
   public static final String EEZ_LOCATION_TYPE = "EEZ";
+  public static final String CONTINENT_LOCATION_TYPE = "Continent";
 
   private static GeocodeShpIntersectService instance;
   private final GeocodeShpConfig config;
   private final SimpleShapeFile countries;
   private final SimpleShapeFile eez;
   private final SimpleShapeFile states;
+  private final SimpleShapeFile continents;
 
   private GeocodeShpIntersectService(GeocodeShpConfig config) {
     synchronized (this) {
@@ -42,6 +44,7 @@ public class GeocodeShpIntersectService {
       this.states =
           new SimpleShapeFile(
               config.getStateProvince().getPath(), config.getStateProvince().getField());
+      this.continents = new SimpleShapeFile(config.getContinent().getPath(), config.getContinent().getField());
     }
   }
 
@@ -223,6 +226,21 @@ public class GeocodeShpIntersectService {
         l.setIsoCountryCode2Digit(consensus);
         locations.add(l);
       }
+    }
+
+    return locations;
+  }
+
+  public List<Location> lookupContinent(Double latitude, Double longitude) {
+    List<Location> locations = new ArrayList<>();
+    String continent = continents.intersect(longitude, latitude);
+    if (continent != null) {
+      Location l = new Location();
+      l.setType(CONTINENT_LOCATION_TYPE);
+      l.setSource(config.getContinent().getSource());
+      l.setId(continent);
+      l.setName(continent);
+      locations.add(l);
     }
 
     return locations;

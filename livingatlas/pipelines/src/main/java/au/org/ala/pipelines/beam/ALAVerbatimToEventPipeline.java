@@ -149,6 +149,7 @@ public class ALAVerbatimToEventPipeline {
             .countryKvStoreSupplier(GeocodeKvStoreFactory.createCountrySupplier(config))
             .stateProvinceKvStoreSupplier(GeocodeKvStoreFactory.createStateProvinceSupplier(config))
             .biomeKvStoreSupplier(GeocodeKvStoreFactory.createBiomeSupplier(config))
+            .continentKvStoreSupplier(GeocodeKvStoreFactory.createContinentSupplier(config))
             .create();
 
     VerbatimTransform verbatimTransform = VerbatimTransform.create();

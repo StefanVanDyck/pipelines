@@ -86,6 +86,9 @@ geocodeConfig:
   biome:
     path: /data/pipelines-shp/gadm0
     field: FEATURE
+  continent:
+    path: /data/pipelines-shp/Continents_WGS84
+    field: CONTINENT
 
 gbifConfig:
   extensionsAllowedForVerbatimSet:

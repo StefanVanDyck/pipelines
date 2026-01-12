@@ -17,9 +17,10 @@ import org.gbif.rest.client.geocode.GeocodeResponse.Location;
 /** Factory to get singleton instance of {@link GeocodeKvStore} */
 public class GeocodeKvStoreFactory {
 
-  private final KeyValueStore<GeocodeRequest, GeocodeResponse> countryKvStore;
-  private final KeyValueStore<GeocodeRequest, GeocodeResponse> stateProvinceKvStore;
-  private final KeyValueStore<GeocodeRequest, GeocodeResponse> biomeKvStore;
+  private final KeyValueStore<LatLng, GeocodeResponse> countryKvStore;
+  private final KeyValueStore<LatLng, GeocodeResponse> stateProvinceKvStore;
+  private final KeyValueStore<LatLng, GeocodeResponse> biomeKvStore;
+  private final KeyValueStore<LatLng, GeocodeResponse> continentKvStore;
   private static volatile GeocodeKvStoreFactory instance;
   private static final Object MUTEX = new Object();
   private static final String BITMAP_EXT = ".png";
@@ -60,6 +61,11 @@ public class GeocodeKvStoreFactory {
     // missEqualsFail=false because not every point will be in a stateProvince
     this.stateProvinceKvStore =
         GeocodeKvStore.create(stateProvinceStore, stateCacheImage, "STATEPROVINCE", false);
+
+    KeyValueStore<GeocodeRequest, GeocodeResponse> continentStore =
+        ContinentKeyValueStore.create(config.getGeocodeConfig());
+
+    this.continentKvStore = GeocodeKvStore.create(continentStore, null, "CONTINENT", false);
 
     // Try to load from image file which has the same name of the SHP file
     BufferedImage biomeCacheImage =
@@ -111,5 +117,10 @@ public class GeocodeKvStoreFactory {
   public static SerializableSupplier<KeyValueStore<GeocodeRequest, GeocodeResponse>>
       createBiomeSupplier(ALAPipelinesConfig config) {
     return () -> getInstance(config).biomeKvStore;
+  }
+
+  public static SerializableSupplier<KeyValueStore<GeocodeRequest, GeocodeResponse>>
+    createContinentSupplier(ALAPipelinesConfig config) {
+    return () -> getInstance(config).continentKvStore;
   }
 }
