@@ -131,8 +131,6 @@ public class ALAVerbatimToInterpretedPipeline {
     VersionInfo.print();
     String[] combinedArgs = new CombinedYamlConfiguration(args).toArgs("general", "interpret");
     run(combinedArgs);
-    // FIXME: Issue logged here: https://github.com/AtlasOfLivingAustralia/la-pipelines/issues/105
-    System.exit(0);
   }
 
   public static void run(String[] args) {
@@ -142,7 +140,7 @@ public class ALAVerbatimToInterpretedPipeline {
     run(options);
   }
 
-  public static void run(InterpretationPipelineOptions options) {
+  public static void run(ALAInterpretationPipelineOptions options) {
     ExecutorService executor = Executors.newWorkStealingPool();
     try {
       run(options, executor);
@@ -157,7 +155,7 @@ public class ALAVerbatimToInterpretedPipeline {
     run(options, executor);
   }
 
-  public static void run(InterpretationPipelineOptions options, ExecutorService executor) {
+  public static void run(ALAInterpretationPipelineOptions options, ExecutorService executor) {
 
     log.info("Pipeline has been started - {}", LocalDateTime.now());
     boolean verbatimAvroAvailable = ValidationUtils.isVerbatimAvroAvailable(options);
@@ -274,6 +272,13 @@ public class ALAVerbatimToInterpretedPipeline {
             .create();
 
     // ALA specific - Taxonomy
+    ALANameMatchConfig alaNameMatchConfig =
+        config.getAlaNameMatchConfig() != null
+            ? config.getAlaNameMatchConfig()
+            : new ALANameMatchConfig();
+    if (options.isMatchOnTaxonId() != null) {
+      alaNameMatchConfig.setMatchOnTaxonID(options.isMatchOnTaxonId());
+    }
     ALATaxonomyTransform alaTaxonomyTransform =
         ALATaxonomyTransform.builder()
             .datasetId(datasetId)
@@ -281,10 +286,7 @@ public class ALAVerbatimToInterpretedPipeline {
             .kingdomCheckStoreSupplier(
                 ALANameCheckKVStoreFactory.getInstanceSupplier("kingdom", config))
             .dataResourceStoreSupplier(ALAAttributionKVStoreFactory.getInstanceSupplier(config))
-            .alaNameMatchConfig(
-                config.getAlaNameMatchConfig() != null
-                    ? config.getAlaNameMatchConfig()
-                    : new ALANameMatchConfig())
+            .alaNameMatchConfig(alaNameMatchConfig)
             .create();
 
     // ALA specific - Location

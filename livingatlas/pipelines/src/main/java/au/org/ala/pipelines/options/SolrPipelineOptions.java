@@ -1,10 +1,11 @@
 package au.org.ala.pipelines.options;
 
+import org.apache.beam.sdk.io.aws2.options.S3Options;
 import org.apache.beam.sdk.options.Default;
 import org.apache.beam.sdk.options.Description;
 
 /** Main pipeline options necessary for SOLR index for Living atlases */
-public interface SolrPipelineOptions extends IndexingPipelineOptions {
+public interface SolrPipelineOptions extends IndexingPipelineOptions, S3Options {
 
   @Description("SOLR collection to index into")
   @Default.String("biocache")

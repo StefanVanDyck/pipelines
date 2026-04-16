@@ -1,5 +1,6 @@
 package au.org.ala.pipelines.options;
 
+import org.apache.beam.sdk.io.aws2.options.S3Options;
 import org.apache.beam.sdk.options.Default;
 import org.apache.beam.sdk.options.Description;
 import org.apache.beam.sdk.options.PipelineOptions;
@@ -10,7 +11,8 @@ public interface IndexingPipelineOptions
     extends PipelineOptions,
         InterpretationPipelineOptions,
         SpeciesLevelPipelineOptions,
-        AllDatasetsPipelinesOptions {
+        AllDatasetsPipelinesOptions,
+        S3Options {
 
   @Description("Include references to image service objects")
   @Default.Boolean(false)

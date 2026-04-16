@@ -93,8 +93,6 @@ public class ALAUUIDMintingPipeline {
     MDC.put("step", "UUID");
     PipelinesOptionsFactory.registerHdfs(options);
     run(options);
-    // FIXME: Issue logged here: https://github.com/AtlasOfLivingAustralia/la-pipelines/issues/105
-    System.exit(0);
   }
 
   public static void run(UUIDPipelineOptions options) throws Exception {
@@ -144,7 +142,8 @@ public class ALAUUIDMintingPipeline {
     ALACollectoryMetadata collectoryMetadata = dataResourceKvStore.get(options.getDatasetId());
     if (collectoryMetadata.equals(ALACollectoryMetadata.EMPTY)) {
       log.error("Unable to retrieve dataset metadata for dataset: " + options.getDatasetId());
-      System.exit(1);
+      throw new RuntimeException(
+          "Unable to retrieve dataset metadata for dataset: " + options.getDatasetId());
     }
 
     // construct unique list of darwin core terms

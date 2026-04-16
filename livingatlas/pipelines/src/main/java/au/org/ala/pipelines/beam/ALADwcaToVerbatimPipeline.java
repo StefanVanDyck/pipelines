@@ -148,6 +148,7 @@ public class ALADwcaToVerbatimPipeline {
 
     String path = PathBuilder.buildDatasetAttemptPath(options, options.getMetaFileName(), false);
     FileSystem fs = FsUtils.getFileSystem(hdfsConfigs, path);
+    log.warn("PATH = {}, fs = {}", path, fs.getScheme());
     FsUtils.createFile(fs, path, mapper.writeValueAsString(properties));
   }
 }

@@ -1,10 +1,11 @@
 package au.org.ala.pipelines.options;
 
+import org.apache.beam.sdk.io.aws2.options.S3Options;
 import org.apache.beam.sdk.options.Default;
 import org.apache.beam.sdk.options.Description;
 
 /** For ALA sandbox */
-public interface DwcaToSolrPipelineOptions extends IndexingPipelineOptions {
+public interface DwcaToSolrPipelineOptions extends IndexingPipelineOptions, S3Options {
 
   @Default.String("biocache")
   String getSolrCollection();

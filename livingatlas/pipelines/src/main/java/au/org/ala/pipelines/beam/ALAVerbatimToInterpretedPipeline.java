@@ -108,9 +108,8 @@ public class ALAVerbatimToInterpretedPipeline {
         PipelinesOptionsFactory.create(ALAInterpretationPipelineOptions.class, combinedArgs);
     options.setMetaFileName(ValidationUtils.INTERPRETATION_METRICS);
     PipelinesOptionsFactory.registerHdfs(options);
+
     run(options);
-    // FIXME: Issue logged here: https://github.com/AtlasOfLivingAustralia/la-pipelines/issues/105
-    System.exit(0);
   }
 
   public static void run(ALAInterpretationPipelineOptions options) {
@@ -213,6 +212,13 @@ public class ALAVerbatimToInterpretedPipeline {
             .create();
 
     // ALA specific - Taxonomy
+    ALANameMatchConfig alaNameMatchConfig =
+        config.getAlaNameMatchConfig() != null
+            ? config.getAlaNameMatchConfig()
+            : new ALANameMatchConfig();
+    if (options.isMatchOnTaxonId() != null) {
+      alaNameMatchConfig.setMatchOnTaxonID(options.isMatchOnTaxonId());
+    }
     ALATaxonomyTransform alaTaxonomyTransform =
         ALATaxonomyTransform.builder()
             .datasetId(datasetId)
@@ -220,10 +226,7 @@ public class ALAVerbatimToInterpretedPipeline {
             .kingdomCheckStoreSupplier(
                 ALANameCheckKVStoreFactory.getInstanceSupplier("kingdom", config))
             .dataResourceStoreSupplier(ALAAttributionKVStoreFactory.getInstanceSupplier(config))
-            .alaNameMatchConfig(
-                config.getAlaNameMatchConfig() != null
-                    ? config.getAlaNameMatchConfig()
-                    : new ALANameMatchConfig())
+            .alaNameMatchConfig(alaNameMatchConfig)
             .create();
 
     // ALA specific - Location
@@ -301,6 +304,7 @@ public class ALAVerbatimToInterpretedPipeline {
 
     log.info("Deleting beam temporal folders");
     String tempPath = String.join("/", targetPath, datasetId, attempt.toString());
+
     FsUtils.deleteDirectoryByPrefix(hdfsConfigs, tempPath, ".temp-beam");
 
     if (options.isEventsEnabled() && ArchiveUtils.isEventCore(options)) {

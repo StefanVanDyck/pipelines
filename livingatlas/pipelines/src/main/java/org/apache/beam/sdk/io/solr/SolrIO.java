@@ -188,7 +188,7 @@ public class SolrIO {
     AuthorizedSolrClient<CloudSolrClient> createClient() {
       CloudSolrClient solrClient =
           new CloudSolrClient.Builder(ImmutableList.of(getZkHost()), Optional.empty()).build();
-      solrClient.setZkClientTimeout(180000);
+      solrClient.setZkClientTimeout(5_000);
       return new AuthorizedSolrClient<>(solrClient, this);
     }
 

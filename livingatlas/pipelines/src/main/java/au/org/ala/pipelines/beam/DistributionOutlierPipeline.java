@@ -61,7 +61,6 @@ public class DistributionOutlierPipeline {
     MDC.put("step", "OUTLIER");
     PipelinesOptionsFactory.registerHdfs(options);
     run(options);
-    System.exit(0);
   }
 
   public static void run(DistributionOutlierPipelineOptions options) throws Exception {

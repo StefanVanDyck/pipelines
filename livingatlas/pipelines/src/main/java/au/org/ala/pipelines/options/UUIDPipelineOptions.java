@@ -1,11 +1,12 @@
 package au.org.ala.pipelines.options;
 
+import org.apache.beam.sdk.io.aws2.options.S3Options;
 import org.apache.beam.sdk.options.Default;
 import org.apache.beam.sdk.options.Description;
 import org.gbif.pipelines.common.beam.options.InterpretationPipelineOptions;
 
 /** Options for running UUID based pipelines. */
-public interface UUIDPipelineOptions extends InterpretationPipelineOptions {
+public interface UUIDPipelineOptions extends InterpretationPipelineOptions, S3Options {
 
   @Description("The number of backups to keep")
   @Default.Integer(10)

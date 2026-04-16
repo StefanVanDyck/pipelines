@@ -34,7 +34,6 @@
     <!-- Tools-->
     <commons-configuration.version>1.6</commons-configuration.version>
     <netty-all.version>4.1.100.Final</netty-all.version>
-    <snakeyaml.version>2.5</snakeyaml.version>
     <streamex.version>0.7.2</streamex.version>
     <jcommander.version>1.78</jcommander.version>
     <layers-store.version>2.0.3</layers-store.version>
@@ -55,7 +54,6 @@
     <snappy-java.version>1.1.8.4</snappy-java.version>
     <junit-jupiter.version>5.7.2</junit-jupiter.version>
 
-    <hadoop.version>3.4.0</hadoop.version>
     <maven-scala-plugin.version>4.8.0</maven-scala-plugin.version>
   </properties>
 
@@ -246,6 +244,12 @@
     </dependency>
 
     <dependency>
+      <groupId>com.fasterxml.woodstox</groupId>
+      <artifactId>woodstox-core</artifactId>
+      <version>5.3.0</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
       <groupId>org.jetbrains.kotlin</groupId>
       <artifactId>kotlin-stdlib</artifactId>
       <scope>runtime</scope>
@@ -286,6 +290,11 @@
     <dependency>
       <groupId>org.apache.beam</groupId>
       <artifactId>beam-sdks-java-extensions-join-library</artifactId>
+      <version>${apache.beam.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.beam</groupId>
+      <artifactId>beam-sdks-java-io-amazon-web-services2</artifactId>
       <version>${apache.beam.version}</version>
     </dependency>
     <dependency>
@@ -516,6 +525,11 @@
         </exclusion>
       </exclusions>
     </dependency>
+    <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-aws</artifactId>
+      <version>${hadoop.version}</version>
+    </dependency>
 
     <!-- Utils -->
     <dependency>
@@ -529,11 +543,6 @@
     <dependency>
       <groupId>jakarta.validation</groupId>
       <artifactId>jakarta.validation-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.yaml</groupId>
-      <artifactId>snakeyaml</artifactId>
-      <version>${snakeyaml.version}</version>
     </dependency>
     <dependency>
       <groupId>one.util</groupId>
@@ -919,11 +928,6 @@
                     </transformer>
                   </transformers>
                   <relocations>
-                    <!-- Transient from core: conflicts with Beam on Spark -->
-                    <relocation>
-                      <pattern>com.fasterxml.jackson</pattern>
-                      <shadedPattern>j213.com.fasterxml.jackson</shadedPattern>
-                    </relocation>
                     <relocation>
                       <pattern>okhttp3</pattern>
                       <shadedPattern>o115.okhttp3</shadedPattern>
@@ -949,10 +953,6 @@
                     <relocation>
                       <pattern>com.google.common</pattern>
                       <shadedPattern>g20.com.google.common</shadedPattern>
-                    </relocation>
-                    <relocation>
-                      <pattern>org.yaml.snakeyaml</pattern>
-                      <shadedPattern>s125.org.yaml.snakeyaml</shadedPattern>
                     </relocation>
                   </relocations>
                 </configuration>

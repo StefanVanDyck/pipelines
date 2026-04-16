@@ -63,8 +63,6 @@ public class LayerCrawler {
 
     LayerCrawler layerCrawler = new LayerCrawler();
     layerCrawler.run(options);
-    // FIXME: Issue logged here: https://github.com/AtlasOfLivingAustralia/la-pipelines/issues/105
-    System.exit(0);
   }
 
   public void run(SamplingPipelineOptions options) throws Exception {

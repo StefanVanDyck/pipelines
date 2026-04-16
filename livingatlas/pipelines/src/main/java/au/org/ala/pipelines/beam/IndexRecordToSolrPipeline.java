@@ -16,6 +16,7 @@ import au.org.ala.utils.ALAFsUtils;
 import au.org.ala.utils.CombinedYamlConfiguration;
 import au.org.ala.utils.ValidationUtils;
 import com.google.common.collect.ImmutableMap;
+import io.vavr.collection.Stream;
 import java.util.*;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
@@ -89,8 +90,6 @@ public class IndexRecordToSolrPipeline {
     options.setMetaFileName(ValidationUtils.INDEXING_METRICS);
     PipelinesOptionsFactory.registerHdfs(options);
     run(options);
-    // FIXME: Issue logged here: https://github.com/AtlasOfLivingAustralia/la-pipelines/issues/105
-    System.exit(0);
   }
 
   public static void run(SolrPipelineOptions options) {
@@ -513,37 +512,50 @@ public class IndexRecordToSolrPipeline {
 
       @ProcessElement
       public void processElement(ProcessContext c) {
+        try {
+          KV<String, CoGbkResult> e = c.element();
+          IndexRecord indexRecord = e.getValue().getOnly(indexRecordTag, nullIndexRecord);
+          if (indexRecord != null && !indexRecord.equals(nullIndexRecord)) {
 
-        KV<String, CoGbkResult> e = c.element();
-        IndexRecord indexRecord = e.getValue().getOnly(indexRecordTag, nullIndexRecord);
+            JackKnifeOutlierRecord jackKnife = e.getValue().getOnly(jackKnifeTag, nullJkor);
+            Relationships clustering = e.getValue().getOnly(clusteringTag, nullClustering);
+            DistributionOutlierRecord outlierRecord = e.getValue().getOnly(outlierTag, nullOutlier);
+            RecordAnnotations annotationsRecord =
+                e.getValue().getOnly(annotationsTag, nullAnnotations);
 
-        if (indexRecord != null && !indexRecord.equals(nullIndexRecord)) {
+            if (jackKnife != null) {
+              addJackKnifeInfo(indexRecord, jackKnife);
+            }
 
-          JackKnifeOutlierRecord jackKnife = e.getValue().getOnly(jackKnifeTag, nullJkor);
-          Relationships clustering = e.getValue().getOnly(clusteringTag, nullClustering);
-          DistributionOutlierRecord outlierRecord = e.getValue().getOnly(outlierTag, nullOutlier);
-          RecordAnnotations annotationsRecord =
-              e.getValue().getOnly(annotationsTag, nullAnnotations);
+            if (clustering != null) {
+              addClusteringInfo(indexRecord, clustering);
+            }
 
-          if (jackKnife != null) {
-            addJackKnifeInfo(indexRecord, jackKnife);
+            if (outlierRecord != null) {
+              addOutlierInfo(indexRecord, outlierRecord);
+            }
+
+            if (annotationsRecord != null) {
+              addRecordAnnotationInfo(indexRecord, annotationsRecord);
+            }
+
+            c.output(KV.of(indexRecord.getId(), indexRecord));
+          } else {
+            log.error("Join null for key " + e.getKey());
           }
-
-          if (clustering != null) {
-            addClusteringInfo(indexRecord, clustering);
+        } catch (IllegalArgumentException ex) {
+          if (ex.getMessage().contains("non-singleton result")) {
+            var occurrenceIds =
+                Stream.ofAll(c.element().getValue().getAll(indexRecordTag))
+                    .map(
+                        value ->
+                            value.getId()
+                                + ": "
+                                + value.getStrings().get(DwcTerm.occurrenceID.simpleName()))
+                    .collect(Collectors.joining(", "));
+            throw new RuntimeException("Failed to process record with ids: " + occurrenceIds, ex);
           }
-
-          if (outlierRecord != null) {
-            addOutlierInfo(indexRecord, outlierRecord);
-          }
-
-          if (annotationsRecord != null) {
-            addRecordAnnotationInfo(indexRecord, annotationsRecord);
-          }
-
-          c.output(KV.of(indexRecord.getId(), indexRecord));
-        } else {
-          log.error("Join null for key " + e.getKey());
+          throw ex;
         }
       }
     };

@@ -310,38 +310,38 @@ public class GeologicalContextInterpreter {
             OccurrenceIssue.EON_OR_EONOTHEM_RANK_MISMATCH,
             OccurrenceIssue.EON_OR_EONOTHEM_INVALID_RANGE,
             null);
-      case earliestEraOrLowestErathem:
-      case latestEraOrHighestErathem:
-        return TermData.of(
-            ERA,
-            OccurrenceIssue.ERA_OR_ERATHEM_INFERRED_FROM_PARENT_RANK,
-            OccurrenceIssue.ERA_OR_ERATHEM_RANK_MISMATCH,
-            OccurrenceIssue.ERA_OR_ERATHEM_INVALID_RANGE,
-            OccurrenceIssue.EON_OR_EONOTHEM_AND_ERA_OR_ERATHEM_MISMATCH);
-      case earliestPeriodOrLowestSystem:
-      case latestPeriodOrHighestSystem:
-        return TermData.of(
-            PERIOD,
-            OccurrenceIssue.PERIOD_OR_SYSTEM_INFERRED_FROM_PARENT_RANK,
-            OccurrenceIssue.PERIOD_OR_SYSTEM_RANK_MISMATCH,
-            OccurrenceIssue.PERIOD_OR_SYSTEM_INVALID_RANGE,
-            OccurrenceIssue.ERA_OR_ERATHEM_AND_PERIOD_OR_SYSTEM_MISMATCH);
-      case earliestEpochOrLowestSeries:
-      case latestEpochOrHighestSeries:
-        return TermData.of(
-            EPOCH,
-            OccurrenceIssue.EPOCH_OR_SERIES_INFERRED_FROM_PARENT_RANK,
-            OccurrenceIssue.EPOCH_OR_SERIES_RANK_MISMATCH,
-            OccurrenceIssue.EPOCH_OR_SERIES_INVALID_RANGE,
-            OccurrenceIssue.PERIOD_OR_SYSTEM_AND_EPOCH_OR_SERIES_MISMATCH);
-      case earliestAgeOrLowestStage:
-      case latestAgeOrHighestStage:
-        return TermData.of(
-            AGE,
-            OccurrenceIssue.AGE_OR_STAGE_INFERRED_FROM_PARENT_RANK,
-            OccurrenceIssue.AGE_OR_STAGE_RANK_MISMATCH,
-            OccurrenceIssue.AGE_OR_STAGE_INVALID_RANGE,
-            OccurrenceIssue.EPOCH_OR_SERIES_AND_AGE_OR_STAGE_MISMATCH);
+        //      case earliestEraOrLowestErathem:
+        //      case latestEraOrHighestErathem:
+        //        return TermData.of(
+        //            ERA,
+        //            OccurrenceIssue.ERA_OR_ERATHEM_INFERRED_FROM_PARENT_RANK,
+        //            OccurrenceIssue.ERA_OR_ERATHEM_RANK_MISMATCH,
+        //            OccurrenceIssue.ERA_OR_ERATHEM_INVALID_RANGE,
+        //            OccurrenceIssue.EON_OR_EONOTHEM_AND_ERA_OR_ERATHEM_MISMATCH);
+        //      case earliestPeriodOrLowestSystem:
+        //      case latestPeriodOrHighestSystem:
+        //        return TermData.of(
+        //            PERIOD,
+        //            OccurrenceIssue.PERIOD_OR_SYSTEM_INFERRED_FROM_PARENT_RANK,
+        //            OccurrenceIssue.PERIOD_OR_SYSTEM_RANK_MISMATCH,
+        //            OccurrenceIssue.PERIOD_OR_SYSTEM_INVALID_RANGE,
+        //            OccurrenceIssue.ERA_OR_ERATHEM_AND_PERIOD_OR_SYSTEM_MISMATCH);
+        //      case earliestEpochOrLowestSeries:
+        //      case latestEpochOrHighestSeries:
+        //        return TermData.of(
+        //            EPOCH,
+        //            OccurrenceIssue.EPOCH_OR_SERIES_INFERRED_FROM_PARENT_RANK,
+        //            OccurrenceIssue.EPOCH_OR_SERIES_RANK_MISMATCH,
+        //            OccurrenceIssue.EPOCH_OR_SERIES_INVALID_RANGE,
+        //            OccurrenceIssue.PERIOD_OR_SYSTEM_AND_EPOCH_OR_SERIES_MISMATCH);
+        //      case earliestAgeOrLowestStage:
+        //      case latestAgeOrHighestStage:
+        //        return TermData.of(
+        //            AGE,
+        //            OccurrenceIssue.AGE_OR_STAGE_INFERRED_FROM_PARENT_RANK,
+        //            OccurrenceIssue.AGE_OR_STAGE_RANK_MISMATCH,
+        //            OccurrenceIssue.AGE_OR_STAGE_INVALID_RANGE,
+        //            OccurrenceIssue.EPOCH_OR_SERIES_AND_AGE_OR_STAGE_MISMATCH);
       default:
         return TermData.of(null, null, null, null, null);
     }
