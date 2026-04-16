@@ -1,5 +1,6 @@
 package org.gbif.pipelines.tasks.verbatims.fragmenter;
 
+import jakarta.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,7 +12,6 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.gbif.api.model.common.paging.Pageable;
@@ -132,19 +132,37 @@ public class PipelinesHistoryClientTestStub implements PipelinesHistoryClient {
 
   @Override
   public RunPipelineResponse runAll(
-      String s, String s1, boolean b, boolean b1, RunAllParams runAllParams, Set<String> set) {
+      String s,
+      String s1,
+      boolean b,
+      boolean b1,
+      RunAllParams runAllParams,
+      Set<String> set,
+      boolean excludeEventSteps) {
     throw new UnsupportedOperationException("The method is not implemented!");
   }
 
   @Override
   public RunPipelineResponse runPipelineAttempt(
-      UUID uuid, String s, String s1, boolean b, boolean b1, Set<String> set) {
+      UUID uuid,
+      String s,
+      String s1,
+      boolean b,
+      boolean b1,
+      Set<String> set,
+      boolean excludeEventSteps) {
     throw new UnsupportedOperationException("The method is not implemented!");
   }
 
   @Override
   public RunPipelineResponse runPipelineAttempt(
-      UUID uuid, int i, String s, String s1, boolean b, Set<String> set) {
+      UUID uuid,
+      int i,
+      String s,
+      String s1,
+      boolean b,
+      Set<String> set,
+      boolean excludeEventSteps) {
     throw new UnsupportedOperationException("The method is not implemented!");
   }
 

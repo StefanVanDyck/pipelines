@@ -22,9 +22,7 @@ import org.gbif.pipelines.io.avro.AudubonRecord;
 import org.gbif.pipelines.io.avro.BasicRecord;
 import org.gbif.pipelines.io.avro.ClusteringRecord;
 import org.gbif.pipelines.io.avro.DnaDerivedDataRecord;
-import org.gbif.pipelines.io.avro.EventCoreRecord;
 import org.gbif.pipelines.io.avro.ExtendedRecord;
-import org.gbif.pipelines.io.avro.HumboldtRecord;
 import org.gbif.pipelines.io.avro.IdentifierRecord;
 import org.gbif.pipelines.io.avro.ImageRecord;
 import org.gbif.pipelines.io.avro.LocationRecord;
@@ -88,14 +86,12 @@ public class OccurrenceHdfsRecordTransform implements Serializable {
   @NonNull private final TupleTag<LocationRecord> locationRecordTag;
   @NonNull private final TupleTag<MultiTaxonRecord> multiTaxonRecordTag;
   @NonNull private final TupleTag<GrscicollRecord> grscicollRecordTag;
-  @NonNull private final TupleTag<EventCoreRecord> eventCoreRecordTag;
 
   // Extension
   @NonNull private final TupleTag<MultimediaRecord> multimediaRecordTag;
   @NonNull private final TupleTag<ImageRecord> imageRecordTag;
   @NonNull private final TupleTag<DnaDerivedDataRecord> dnaRecordTag;
   @NonNull private final TupleTag<AudubonRecord> audubonRecordTag;
-  @NonNull private final TupleTag<HumboldtRecord> humboldtRecordTag;
 
   @NonNull private final PCollectionView<MetadataRecord> metadataView;
 
@@ -137,12 +133,8 @@ public class OccurrenceHdfsRecordTransform implements Serializable {
             AudubonRecord ar =
                 v.getOnly(audubonRecordTag, AudubonRecord.newBuilder().setId(k).build());
 
-            EventCoreRecord eventCoreRecord =
-                v.getOnly(eventCoreRecordTag, EventCoreRecord.newBuilder().setId(k).build());
-            HumboldtRecord humboldtRecord =
-                v.getOnly(humboldtRecordTag, HumboldtRecord.newBuilder().setId(k).build());
-
             MultimediaRecord mmr = MultimediaConverter.merge(mr, ir, ar);
+
             OccurrenceHdfsRecord record =
                 OccurrenceHdfsRecordConverter.builder()
                     .basicRecord(br)
@@ -156,8 +148,6 @@ public class OccurrenceHdfsRecordTransform implements Serializable {
                     .multimediaRecord(mmr)
                     .dnaDerivedDataRecord(dnar)
                     .extendedRecord(er)
-                    .eventCoreRecord(eventCoreRecord)
-                    .humboldtRecord(humboldtRecord)
                     .build()
                     .convert();
 

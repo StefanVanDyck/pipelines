@@ -20,7 +20,18 @@ validation:
       idleTimeout: 60000
       maximumPoolSize: 10
       minimumIdle: 1
+
 spring:
+  config:
+    import: "optional:zookeeper:"
+  cloud:
+    zookeeper:
+      enabled: false
+      discovery:
+        enabled: false
+  servlet:
+    multipart:
+      location: //tmp/
   application.name: pipelines-validator-ws
   liquibase:
     enabled: false
