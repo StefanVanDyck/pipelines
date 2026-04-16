@@ -69,51 +69,8 @@
     </pluginRepository>
   </pluginRepositories>
 
-    <repositories>
-        <repository>
-            <id>gbif-central</id>
-            <url>https://repository.gbif.org/repository/central/</url>
-        </repository>
-        <repository>
-            <id>gbif-release</id>
-            <url>https://repository.gbif.org/repository/releases/</url>
-        </repository>
-        <repository>
-            <id>gbif-snapshot</id>
-            <url>https://repository.gbif.org/repository/snapshots/</url>
-        </repository>
-        <repository>
-            <id>gbif-thirdparty</id>
-            <url>https://repository.gbif.org/repository/thirdparty/</url>
-        </repository>
-        <repository>
-            <id>osgeo</id>
-            <name>Open Source Geospatial Foundation Repository</name>
-            <url>https://repo.osgeo.org/repository/release/</url>
-        </repository>
-        <repository>
-            <id>ala-release</id>
-            <url>https://repository.gbif.org/repository/ala-release/</url>
-        </repository>
-        <repository>
-            <id>typesafe-release</id>
-            <url>https://repository.gbif.org/repository/typesafe/</url>
-        </repository>
-    </repositories>
-    <pluginRepositories>
-        <pluginRepository>
-            <id>gbif-central</id>
-            <url>https://repository.gbif.org/repository/central/</url>
-        </pluginRepository>
-        <pluginRepository>
-            <id>gbif-release</id>
-            <url>https://repository.gbif.org/repository/releases/</url>
-        </pluginRepository>
-        <pluginRepository>
-            <id>gbif-snapshot</id>
-            <url>https://repository.gbif.org/repository/snapshots/</url>
-        </pluginRepository>
-    </pluginRepositories>
+    
+    
 
     <properties>
         <!-- Common variables -->
