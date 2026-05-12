@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
 import org.gbif.api.vocabulary.InterpretationRemark;
 import org.gbif.api.vocabulary.OccurrenceIssue;
 import org.gbif.dwc.terms.DwcTerm;
@@ -144,12 +143,7 @@ public class ALATaxonomyInterpreter {
         }
         NameSearch.NameSearchBuilder builder = NameSearch.builder();
         if (matchOnTaxonID) {
-          String acceptedNameUsageID = (String) er.get("acceptedNameUsageID");
-          if (StringUtils.isEmpty(acceptedNameUsageID)) {
-            builder.taxonID(extractValue(er, DwcTerm.taxonID, defaults));
-          } else {
-            builder.taxonID(acceptedNameUsageID);
-          }
+          builder.taxonID(extractValue(er, DwcTerm.acceptedNameUsageID, defaults));
         }
         NameSearch matchRequest =
             builder
