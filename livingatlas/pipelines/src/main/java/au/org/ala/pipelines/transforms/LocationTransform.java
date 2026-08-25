@@ -160,7 +160,11 @@ public class LocationTransform extends Transform<ExtendedRecord, LocationRecord>
             .when(er -> !er.getCoreTerms().isEmpty())
             .via(LocationInterpreter.interpretCountryAndCoordinates(countryKvStore, null))
             .via(ALALocationInterpreter.interpretStateProvince(stateProvinceKvStore))
-            .via(LocationInterpreter.interpretContinent(countryKvStore))
+            // Continent interpretation is disabled. It needs a "Continent" layer, which the ALA
+            // shapefile store does not have, it only returns Political and EEZ. Every record was
+            // therefore treated as being in the ocean, which flagged CONTINENT_COORDINATE_MISMATCH
+            // and cleared the supplied continent. Re-enable with a continent shapefile in
+            // geocodeConfig and a kvStore that returns Continent typed locations.
             .via(ALALocationInterpreter.interpretBiome(biomeKvStore))
             .via(LocationInterpreter::interpretWaterBody)
             .via(LocationInterpreter::interpretMinimumElevationInMeters)

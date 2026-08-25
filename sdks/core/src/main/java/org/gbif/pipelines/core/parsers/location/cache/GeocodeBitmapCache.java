@@ -23,6 +23,16 @@ public class GeocodeBitmapCache {
   private final BufferedImage img;
   private static final int BORDER = 0x000000;
   private static final int NOTHING = 0xFFFFFF;
+
+  /**
+   * How far a pixel must be from any colour change before its answer is safe to share with every
+   * other pixel of that colour. A clear radius of r pixels guarantees r pixels of clearance from
+   * any differing region, and the shipped bitmap is 7200x3600, i.e. 0.05 degrees per pixel, so 3
+   * gives 0.15 degrees. That must stay above the border tolerance the geocode stores apply,
+   * currently 0.1 degrees in the ALA shapefile service, otherwise a border answer gets cached by
+   * colour and served country-wide.
+   */
+  private static final int SAFE_RADIUS_PIXELS = 3;
   private final int imgWidth;
   private final int imgHeight;
   private final Map<Integer, GeocodeResponse> colourKey = new ConcurrentHashMap<>();
@@ -86,8 +96,34 @@ public class GeocodeBitmapCache {
         return new GeocodeResponse(Collections.emptyList());
 
       default:
+        // The colour cache reuses one lookup, made at one point, for every pixel of that colour
+        // anywhere on earth, so it must only answer where the country is the same across the
+        // neighbourhood. Near a border the answer is position dependent: the underlying store
+        // reports the neighbouring country too, and caching that by colour would apply it
+        // country-wide.
+        if (isNearColourChange(x, y, colour)) {
+          return null;
+        }
         return getDefaultGeocodeResponse(lat, lng, x, y, colour, hex);
     }
+  }
+
+  /**
+   * True if any pixel within {@link #SAFE_RADIUS_PIXELS} has a different colour, i.e. a border, the
+   * sea or another country is close enough that the answer here is not the colour's answer.
+   */
+  private boolean isNearColourChange(int x, int y, int colour) {
+    for (int dx = -SAFE_RADIUS_PIXELS; dx <= SAFE_RADIUS_PIXELS; dx++) {
+      for (int dy = -SAFE_RADIUS_PIXELS; dy <= SAFE_RADIUS_PIXELS; dy++) {
+        // longitude wraps at the antimeridian, latitude clamps at the poles
+        int nx = Math.floorMod(x + dx, imgWidth);
+        int ny = Math.min(Math.max(y + dy, 0), imgHeight - 1);
+        if ((img.getRGB(nx, ny) & 0x00FFFFFF) != colour) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   private GeocodeResponse getDefaultGeocodeResponse(

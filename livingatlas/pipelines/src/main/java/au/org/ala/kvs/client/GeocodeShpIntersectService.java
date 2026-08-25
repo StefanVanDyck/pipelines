@@ -145,6 +145,7 @@ public class GeocodeShpIntersectService {
       l.setId(countryValue);
       l.setName(countryValue);
       l.setIsoCountryCode2Digit(countryValue);
+      l.setDistance(0d);
       locations.add(l);
     } else {
       eezValue = eez.intersect(longitude, latitude);
@@ -155,8 +156,19 @@ public class GeocodeShpIntersectService {
         l.setSource(config.getEez().getSource());
         l.setName(eezValue);
         l.setIsoCountryCode2Digit(eezValue);
+        l.setDistance(0d);
         locations.add(l);
       }
+    }
+
+    // A point just inside one country can be within the coordinate precision of its neighbour, so
+    // offer the neighbours as extra candidates, as the GBIF geocode service does. The matcher keeps
+    // the record's own country when it is among them and otherwise still derives the containing
+    // one, which is first, so this only relaxes flags, it never changes an existing good match.
+    if (countryValue != null
+        && config.getCountry().getBorderBuffer() != null
+        && config.getCountry().getBorderBuffer() > 0) {
+      addNeighbours(locations, countryValue, latitude, longitude);
     }
 
     // if no country value, add a 10km buffer
@@ -173,6 +185,7 @@ public class GeocodeShpIntersectService {
         l.setId(consensus);
         l.setName(consensus);
         l.setIsoCountryCode2Digit(consensus);
+        l.setDistance(0d);
         locations.add(l);
       }
 
@@ -187,6 +200,7 @@ public class GeocodeShpIntersectService {
           l.setId(consensus);
           l.setName(consensus);
           l.setIsoCountryCode2Digit(consensus);
+          l.setDistance(0d);
           locations.add(l);
         }
       }
@@ -204,6 +218,7 @@ public class GeocodeShpIntersectService {
       l.setSource(config.getStateProvince().getSource());
       l.setId(state);
       l.setName(state);
+      l.setDistance(0d);
       locations.add(l);
     }
 
@@ -221,11 +236,43 @@ public class GeocodeShpIntersectService {
         l.setId(consensus);
         l.setName(consensus);
         l.setIsoCountryCode2Digit(consensus);
+        l.setDistance(0d);
         locations.add(l);
       }
     }
 
     return locations;
+  }
+
+  /** Adds any country within borderBuffer degrees, other than the one already matched. */
+  private void addNeighbours(
+      List<Location> locations, String countryValue, Double latitude, Double longitude) {
+    double b = config.getCountry().getBorderBuffer();
+    // ponytail: 4 corner samples, the same square approximation intersectWithBuffer already uses.
+    // Misses a neighbour whose territory only reaches the N/S/E/W midpoints, sample 8 if that shows
+    // up in practice.
+    List<String> corners =
+        Arrays.asList(
+            countries.intersect(longitude - b, latitude - b),
+            countries.intersect(longitude - b, latitude + b),
+            countries.intersect(longitude + b, latitude - b),
+            countries.intersect(longitude + b, latitude + b));
+
+    corners.stream()
+        .filter(c -> c != null && !c.equals(countryValue))
+        .distinct()
+        .forEach(
+            c -> {
+              Location l = new Location();
+              l.setType(POLITICAL_LOCATION_TYPE);
+              l.setSource(config.getCountry().getSource());
+              l.setId(c);
+              l.setName(c);
+              l.setIsoCountryCode2Digit(c);
+              // non-zero, so the containing country always sorts first in the matcher
+              l.setDistance(b);
+              locations.add(l);
+            });
   }
 
   private String intersectWithBuffer(
