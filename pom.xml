@@ -112,12 +112,12 @@
         <gbif-api.version>2.2.4</gbif-api.version>
         <gbif-common.version>0.60</gbif-common.version>
         <dwc-api.version>2.1.9</dwc-api.version>
-        <kvs.version>3.0</kvs.version>
+        <kvs.version>3.1.2</kvs.version>
         <hbase-utils.version>1.0.0</hbase-utils.version>
         <gbif-wrangler.version>1.0.0</gbif-wrangler.version>
-        <gbif-occurrence.version>1.1.14</gbif-occurrence.version>
+        <gbif-occurrence.version>1.1.26</gbif-occurrence.version>
         <vocabulary-lookup.version>2.0.3</vocabulary-lookup.version>
-        <registry.version>4.2.3</registry.version>
+        <registry.version>4.2.18</registry.version>
         <gbif-common-ws.version>2.0.10-java11</gbif-common-ws.version>
         <gbif-postal-service.version>2.1.4</gbif-postal-service.version>
         <gbif-common-spreadsheet.version>0.2</gbif-common-spreadsheet.version>
@@ -548,6 +548,13 @@
                 <groupId>org.gbif.registry</groupId>
                 <artifactId>registry-persistence</artifactId>
                 <version>${registry.version}</version>
+            </dependency>
+            <!-- managed here because registry 4.2.18 pulls download-query-tools 2.0.4,
+                 which is no longer available on repository.gbif.org -->
+            <dependency>
+                <groupId>org.gbif.occurrence</groupId>
+                <artifactId>download-query-tools</artifactId>
+                <version>2.0.6</version>
             </dependency>
             <dependency>
                 <groupId>org.gbif.crawler</groupId>
