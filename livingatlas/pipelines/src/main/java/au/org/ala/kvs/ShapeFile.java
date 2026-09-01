@@ -25,9 +25,15 @@ public class ShapeFile implements Serializable {
    * Border tolerance in degrees, 0.1 = approx 11km, double the tolerance the GBIF geocode service
    * applies. Countries within this distance of the point are returned as additional candidates, so
    * a record near a border matches either side instead of being flagged
-   * COUNTRY_COORDINATE_MISMATCH. Set to 0 to disable. Raising this above 0.15 also needs
+   * COUNTRY_COORDINATE_MISMATCH. Set to 0 to disable. Raising it above 0.15 also needs
    * SAFE_RADIUS_PIXELS raised in GeocodeBitmapCache, or the bitmap cache will serve a border answer
    * country-wide.
+   *
+   * <p>Note this initialiser does not apply to config read from YAML. lombok.config sets
+   * lombok.anyConstructor.addConstructorProperties, so Jackson constructs this class through the
+   * all-args constructor and an absent key arrives as null. The effective default lives in
+   * GeocodeShpIntersectService.DEFAULT_BORDER_BUFFER. The same caveat applies to intersectBuffer
+   * above.
    */
   Double borderBuffer = 0.1;
 

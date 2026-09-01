@@ -165,9 +165,7 @@ public class GeocodeShpIntersectService {
     // offer the neighbours as extra candidates, as the GBIF geocode service does. The matcher keeps
     // the record's own country when it is among them and otherwise still derives the containing
     // one, which is first, so this only relaxes flags, it never changes an existing good match.
-    if (countryValue != null
-        && config.getCountry().getBorderBuffer() != null
-        && config.getCountry().getBorderBuffer() > 0) {
+    if (countryValue != null && borderBuffer() > 0) {
       addNeighbours(locations, countryValue, latitude, longitude);
     }
 
@@ -244,10 +242,25 @@ public class GeocodeShpIntersectService {
     return locations;
   }
 
+  /**
+   * Border tolerance in degrees, used when the config does not set one. This cannot rely on the
+   * field initialiser in {@link ShapeFile}: lombok.config sets
+   * lombok.anyConstructor.addConstructorProperties, so Jackson deserialises through the all-args
+   * constructor and every field initialiser in that class is bypassed. An absent borderBuffer
+   * therefore arrives as null, not as the declared default.
+   */
+  private static final double DEFAULT_BORDER_BUFFER = 0.1;
+
+  /** Configured border tolerance in degrees, or the default when the config omits it. */
+  private double borderBuffer() {
+    Double configured = config.getCountry().getBorderBuffer();
+    return configured == null ? DEFAULT_BORDER_BUFFER : configured;
+  }
+
   /** Adds any country within borderBuffer degrees, other than the one already matched. */
   private void addNeighbours(
       List<Location> locations, String countryValue, Double latitude, Double longitude) {
-    double b = config.getCountry().getBorderBuffer();
+    double b = borderBuffer();
     // ponytail: 4 corner samples, the same square approximation intersectWithBuffer already uses.
     // Misses a neighbour whose territory only reaches the N/S/E/W midpoints, sample 8 if that shows
     // up in practice.
