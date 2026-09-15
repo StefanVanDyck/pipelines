@@ -109,15 +109,17 @@
         <!-- GBIF libraries -->
         <gbif-parsers.version>0.67</gbif-parsers.version>
         <dwca-io.version>3.0.1</dwca-io.version>
-        <gbif-api.version>2.2.4</gbif-api.version>
+        <gbif-api.version>2.4.13</gbif-api.version>
         <gbif-common.version>0.60</gbif-common.version>
-        <dwc-api.version>2.1.9</dwc-api.version>
+        <dwc-api.version>2.1.14</dwc-api.version>
         <kvs.version>3.1.2</kvs.version>
         <hbase-utils.version>1.0.0</hbase-utils.version>
         <gbif-wrangler.version>1.0.0</gbif-wrangler.version>
-        <gbif-occurrence.version>1.1.26</gbif-occurrence.version>
+        <!-- occurrence-hdfs-table and maven-extension-avsc-schema-generator were moved
+             from org.gbif.occurrence to org.gbif.download (same classes) -->
+        <hdfs-tables.version>1.3.9</hdfs-tables.version>
         <vocabulary-lookup.version>2.0.3</vocabulary-lookup.version>
-        <registry.version>4.2.18</registry.version>
+        <registry.version>4.2.19.1</registry.version>
         <gbif-common-ws.version>2.0.10-java11</gbif-common-ws.version>
         <gbif-postal-service.version>2.1.4</gbif-postal-service.version>
         <gbif-common-spreadsheet.version>0.2</gbif-common-spreadsheet.version>
@@ -413,32 +415,14 @@
 
             <!-- GBIF -->
             <dependency>
-                <groupId>org.gbif.occurrence</groupId>
-                <artifactId>occurrence-hdfs-table</artifactId>
-                <version>${gbif-occurrence.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.springframework.boot</groupId>
-                        <artifactId>spring-boot-starter</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.gbif</groupId>
-                        <artifactId>gbif-common-service</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.beust</groupId>
-                        <artifactId>jcommander</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.gbif.occurrence</groupId>
-                        <artifactId>occurrence-persistence</artifactId>
-                    </exclusion>
-                </exclusions>
+                <groupId>org.gbif.download</groupId>
+                <artifactId>hdfs-tables</artifactId>
+                <version>${hdfs-tables.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.gbif.occurrence</groupId>
-                <artifactId>occurrence-common</artifactId>
-                <version>${gbif-occurrence.version}</version>
+                <groupId>org.gbif.download</groupId>
+                <artifactId>maven-extension-avsc-schema-generator</artifactId>
+                <version>${hdfs-tables.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.gbif</groupId>
@@ -549,7 +533,7 @@
                 <artifactId>registry-persistence</artifactId>
                 <version>${registry.version}</version>
             </dependency>
-            <!-- managed here because registry 4.2.18 pulls download-query-tools 2.0.4,
+            <!-- managed here because registry pulls an old download-query-tools,
                  which is no longer available on repository.gbif.org -->
             <dependency>
                 <groupId>org.gbif.occurrence</groupId>

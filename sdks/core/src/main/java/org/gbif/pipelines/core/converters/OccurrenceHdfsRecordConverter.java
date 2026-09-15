@@ -18,7 +18,7 @@ import org.apache.avro.specific.SpecificRecordBase;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.gbif.api.vocabulary.License;
 import org.gbif.dwc.terms.*;
-import org.gbif.occurrence.common.TermUtils;
+import org.gbif.terms.utils.TermUtils;
 import org.gbif.occurrence.download.hive.HiveColumns;
 import org.gbif.pipelines.core.parsers.temporal.StringToDateFunctions;
 import org.gbif.pipelines.core.pojo.HumboldtJsonView;

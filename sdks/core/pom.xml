@@ -256,12 +256,8 @@
 
     <!-- HDFS Table -->
     <dependency>
-      <groupId>org.gbif.occurrence</groupId>
-      <artifactId>occurrence-hdfs-table</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.gbif.occurrence</groupId>
-      <artifactId>occurrence-common</artifactId>
+      <groupId>org.gbif.download</groupId>
+      <artifactId>hdfs-tables</artifactId>
     </dependency>
 
     <!-- Common -->

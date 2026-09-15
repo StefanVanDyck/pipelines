@@ -191,8 +191,7 @@ public class SamplingPipeline {
   public static boolean newLayersAddedSinceLastSample(
       SamplingService samplingService, SamplingPipelineOptions options, FileSystem fs) {
 
-    Long lastSamplingTime = SamplingUtils.samplingLastRan(options, fs);
-    lastSamplingTime = normalizeTimestamp(lastSamplingTime);
+    Long lastSamplingTime = normalizeTimestamp(SamplingUtils.samplingLastRan(options, fs));
 
     // Workflow 1:  Checking for new layers
     List<Layer> layers = samplingService.getLayers().execute().body();

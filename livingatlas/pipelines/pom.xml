@@ -325,8 +325,8 @@
       <artifactId>core</artifactId>
       <exclusions>
         <exclusion>
-          <groupId>org.gbif.occurrence</groupId>
-          <artifactId>occurrence-hdfs-table</artifactId>
+          <groupId>org.gbif.download</groupId>
+          <artifactId>hdfs-tables</artifactId>
         </exclusion>
         <exclusion>
           <groupId>org.gbif.registry</groupId>
