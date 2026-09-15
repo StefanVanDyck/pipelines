@@ -192,6 +192,7 @@ public class SamplingPipeline {
       SamplingService samplingService, SamplingPipelineOptions options, FileSystem fs) {
 
     Long lastSamplingTime = SamplingUtils.samplingLastRan(options, fs);
+    lastSamplingTime = normalizeTimestamp(lastSamplingTime);
 
     // Workflow 1:  Checking for new layers
     List<Layer> layers = samplingService.getLayers().execute().body();
@@ -200,12 +201,20 @@ public class SamplingPipeline {
         Objects.requireNonNull(layers).stream()
             .filter(
                 layer ->
-                    layer.getDt_added() != null && (layer.getDt_added() / 1000) > lastSamplingTime)
+                    layer.getDt_added() != null && normalizeTimestamp(layer.getDt_added()) > lastSamplingTime)
             .map(l -> String.valueOf(l.getId()))
             .collect(Collectors.toList());
 
     log.info("New layers = " + layersFiltered);
 
     return !layersFiltered.isEmpty();
+  }
+
+  private static Long normalizeTimestamp(Long timestamp) {
+    // < ~1e11 only matches seconds since epoch; millis for any real date is >= ~1.3e12
+    if (timestamp > 0 && timestamp < 100_000_000_000L) {
+      return timestamp * 1_000;
+    }
+    return timestamp;
   }
 }
