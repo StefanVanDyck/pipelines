@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <parent>
+    <groupId>org.gbif</groupId>
+    <artifactId>motherpom</artifactId>
+    <version>59</version>
+  </parent>
+
+  <groupId>org.gbif.download</groupId>
+  <artifactId>download-tables-motherpom</artifactId>
+  <version>1.3.9</version>
+  <packaging>pom</packaging>
+  <modelVersion>4.0.0</modelVersion>
+
+  <name>Download tables</name>
+  <description>
+    Common utilities to create and manage download tables.
+    Created largely to avoid circular dependencies between occurrence and pipelines
+    projects.
+  </description>
+
+  <scm>
+    <connection>scm:git:git@github.com:gbif/download-tables.git</connection>
+    <url>https://github.com/gbif/download-tables</url>
+    <developerConnection>scm:git:git@github.com:gbif/download-tables.git</developerConnection>
+    <tag>download-tables-motherpom-1.3.9</tag>
+  </scm>
+
+  <repositories>
+    <repository>
+      <id>gbif-all</id>
+      <url>https://repository.gbif.org/content/groups/gbif</url>
+    </repository>
+    <repository>
+      <id>gbif-central</id>
+      <url>https://repository.gbif.org/repository/central/</url>
+    </repository>
+    <repository>
+      <id>gbif-release</id>
+      <url>https://repository.gbif.org/repository/releases/</url>
+    </repository>
+    <repository>
+      <id>gbif-snapshot</id>
+      <url>https://repository.gbif.org/repository/snapshots/</url>
+    </repository>
+    <repository>
+      <id>gbif-thirdparty</id>
+      <url>https://repository.gbif.org/repository/thirdparty/</url>
+    </repository>
+    <repository>
+      <id>gbif-thirdparty-snapshot</id>
+      <url>https://repository.gbif.org/repository/thirdparty-snapshot/</url>
+    </repository>
+  </repositories>
+
+  <modules>
+    <module>term-utils</module>
+    <module>maven-extension-avsc-schema-generator</module>
+    <module>hdfs-tables</module>
+  </modules>
+
+  <properties>
+
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+    <jdk.level>17</jdk.level>
+
+    <!-- GBIF -->
+    <dwca-io.version>3.0.1</dwca-io.version>
+    <gbif-api.version>2.4.13</gbif-api.version>
+    <dwc-api.version>2.1.14</dwc-api.version>
+    <gbif-predicates.version>2.1.12</gbif-predicates.version>
+
+    <!-- Maven plugins -->
+    <maven-plugin-api.version>3.8.6</maven-plugin-api.version>
+    <maven-plugin-annotations.version>3.6.4</maven-plugin-annotations.version>
+    <maven-plugin-plugin.version>3.6.4</maven-plugin-plugin.version>
+    <build-helper-maven-plugin.version>3.6.0</build-helper-maven-plugin.version>
+
+    <!-- Libraries -->
+    <avro.version>1.11.3</avro.version>
+    <lombok.version>1.18.28</lombok.version>
+    <slf4j.version>2.0.17</slf4j.version>
+
+    <!-- Testing -->
+    <junit.version>4.13.2</junit.version>
+    <junit-jupiter.version>5.12.2</junit-jupiter.version>
+
+  </properties>
+
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>https://raw.github.com/gbif/motherpom/master/LICENSE</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <organization>
+    <name>Global Biodiversity Information Facility (GBIF)</name>
+    <url>https://www.gbif.org</url>
+  </organization>
+
+  <distributionManagement>
+    <site>
+      <id>gh-pages</id>
+      <url>http://gbif.github.io/download-tables/</url>
+    </site>
+    <repository>
+      <id>gbif-release</id>
+      <url>https://repository.gbif.org/content/repositories/releases</url>
+    </repository>
+    <snapshotRepository>
+      <id>gbif-deploy</id>
+      <url>https://repository.gbif.org/content/repositories/snapshots</url>
+    </snapshotRepository>
+  </distributionManagement>
+
+  <dependencyManagement>
+    <dependencies>
+
+      <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <version>${lombok.version}</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <!-- GBIF -->
+      <dependency>
+        <groupId>org.gbif</groupId>
+        <artifactId>dwc-api</artifactId>
+        <version>${dwc-api.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.gbif</groupId>
+        <artifactId>gbif-api</artifactId>
+        <version>${gbif-api.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.gbif</groupId>
+        <artifactId>dwca-io</artifactId>
+        <version>${dwca-io.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.gbif.predicates</groupId>
+        <artifactId>sql-predicates</artifactId>
+        <version>${gbif-predicates.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>${slf4j.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-simple</artifactId>
+        <version>${slf4j.version}</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <!-- Maven plugin APIs -->
+      <dependency>
+        <groupId>org.apache.maven</groupId>
+        <artifactId>maven-plugin-api</artifactId>
+        <version>${maven-plugin-api.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.maven.plugin-tools</groupId>
+        <artifactId>maven-plugin-annotations</artifactId>
+        <version>${maven-plugin-annotations.version}</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <!-- Avro -->
+      <dependency>
+        <groupId>org.apache.avro</groupId>
+        <artifactId>avro</artifactId>
+        <version>${avro.version}</version>
+      </dependency>
+
+      <!-- Testing -->
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>${junit.version}</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter-engine</artifactId>
+        <version>${junit-jupiter.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter-api</artifactId>
+        <version>${junit-jupiter.version}</version>
+        <scope>test</scope>
+      </dependency>
+
+    </dependencies>
+  </dependencyManagement>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-release-plugin</artifactId>
+        <version>${maven-release-plugin.version}</version>
+        <configuration>
+          <goals>deploy</goals>
+          <tagNameFormat>${release.tagNameBase}-@{project.version}</tagNameFormat>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

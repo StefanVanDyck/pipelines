@@ -1,0 +1,597 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.gbif</groupId>
+  <artifactId>motherpom</artifactId>
+  <version>37</version>
+  <packaging>pom</packaging>
+
+  <name>GBIF Mother POM</name>
+  <url>http://github.org/gbif/${project.artifactId}</url>
+
+  <scm>
+    <connection>scm:git:git@github.com:gbif/motherpom.git</connection>
+    <url>https://github.com/gbif/motherpom</url>
+    <developerConnection>scm:git:git@github.com:gbif/motherpom.git</developerConnection>
+    <tag>motherpom-37</tag>
+  </scm>
+
+  <prerequisites>
+    <maven>${minimumMavenVersion}</maven>
+  </prerequisites>
+
+  <properties>
+    <minimumMavenVersion>3.0</minimumMavenVersion>
+    <jdkLevel>1.7</jdkLevel>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+    <release.tagNameBase>${project.artifactId}</release.tagNameBase>
+
+    <cargo.containerId>tomcat7x</cargo.containerId>
+    <cargo.containerType>remote</cargo.containerType>
+    <cargo.context>${project.artifactId}</cargo.context>
+
+    <github.global.server>github</github.global.server>
+    
+    <!--
+    Plugin versions.
+    Check for available updates: mvn versions:display-plugin-updates
+    -->
+    <cargo-maven2-plugin.version>1.4.13</cargo-maven2-plugin.version>
+    <jetty-maven-plugin.version>9.3.6.v20151106</jetty-maven-plugin.version>
+    <liquibase-maven-plugin.version>3.3.2</liquibase-maven-plugin.version>
+    <maven-archetype-plugin.version>2.3</maven-archetype-plugin.version>
+    <maven-assembly-plugin.version>2.6</maven-assembly-plugin.version>
+    <maven-clean-plugin.version>2.6.1</maven-clean-plugin.version>
+    <maven-compiler-plugin.version>3.2</maven-compiler-plugin.version>
+    <maven-dependency-plugin.version>2.10</maven-dependency-plugin.version>
+    <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
+    <maven-eclipse-plugin.version>2.9</maven-eclipse-plugin.version>
+    <maven-enforcer-plugin.version>1.4</maven-enforcer-plugin.version>
+    <maven-install-plugin.version>2.5.2</maven-install-plugin.version>
+    <maven-jar-plugin.version>2.6</maven-jar-plugin.version>
+    <maven-javadoc-plugin.version>2.10.3</maven-javadoc-plugin.version>
+    <maven-jxr-plugin.version>2.5</maven-jxr-plugin.version>
+    <maven-project-info-reports-plugin.version>2.8</maven-project-info-reports-plugin.version>
+    <maven-release-plugin.version>2.5.1</maven-release-plugin.version>
+    <!-- maven-resoruce-plugin 2.7 has a bug with slf4j, so dont use it!
+    https://bugzilla.redhat.com/show_bug.cgi?id=1077375
+    -->
+    <maven-resources-plugin.version>2.6</maven-resources-plugin.version>
+    <maven-scm-plugin.version>1.9.2</maven-scm-plugin.version>
+    <maven-scm-publish-plugin.version>1.1</maven-scm-publish-plugin.version>
+    <maven-shade-plugin.version>2.4.2</maven-shade-plugin.version>
+    <maven-site-plugin.version>3.4</maven-site-plugin.version>
+    <doxia-module-markdown.version>1.6</doxia-module-markdown.version>
+    <maven-source-plugin.version>2.4</maven-source-plugin.version>
+    <maven-surefire-plugin.version>2.18.1</maven-surefire-plugin.version>
+    <maven-wagon-ssh-plugin.version>2.4</maven-wagon-ssh-plugin.version>
+    <maven-wagon-plugin.version>1.0</maven-wagon-plugin.version>
+    <maven-war-plugin.version>2.6</maven-war-plugin.version>
+    <versions-maven-plugin.version>2.1</versions-maven-plugin.version>
+  </properties>
+
+
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>https://raw.github.com/gbif/motherpom/master/LICENSE</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <organization>
+    <name>Global Biodiversity Information Facility</name>
+    <url>http://www.gbif.org</url>
+  </organization>
+
+  <issueManagement>
+    <system>JIRA</system>
+    <url>http://dev.gbif.org/issues/browse/POR</url>
+  </issueManagement>
+
+  <repositories>
+    <repository>
+      <id>gbif-all</id>
+      <url>http://repository.gbif.org/content/groups/gbif</url>
+    </repository>
+  </repositories>
+
+  <distributionManagement>
+    <repository>
+      <id>gbif-release</id>
+      <url>http://repository.gbif.org/content/repositories/releases</url>
+    </repository>
+    <snapshotRepository>
+      <id>gbif-snapshot</id>
+      <url>http://repository.gbif.org/content/repositories/snapshots</url>
+    </snapshotRepository>
+  </distributionManagement>
+
+  <build>
+    <extensions>
+      <extension>
+        <!-- add support for ssh/scp -->
+        <groupId>org.apache.maven.wagon</groupId>
+        <artifactId>wagon-ssh</artifactId>
+        <version>${maven-wagon-ssh-plugin.version}</version>
+      </extension>
+    </extensions>
+
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-archetype-plugin</artifactId>
+          <version>${maven-archetype-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-clean-plugin</artifactId>
+          <version>${maven-clean-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>${maven-compiler-plugin.version}</version>
+          <configuration>
+            <source>${jdkLevel}</source>
+            <target>${jdkLevel}</target>
+            <showDeprecation>true</showDeprecation>
+            <showWarnings>true</showWarnings>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-dependency-plugin</artifactId>
+          <version>${maven-dependency-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>${maven-deploy-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-eclipse-plugin</artifactId>
+          <version>${maven-eclipse-plugin.version}</version>
+          <configuration>
+            <downloadSources>true</downloadSources>
+            <downloadJavadocs>true</downloadJavadocs>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-enforcer-plugin</artifactId>
+          <version>${maven-enforcer-plugin.version}</version>
+          <executions>
+            <execution>
+              <id>enforce-maven-3</id>
+              <goals>
+                <goal>enforce</goal>
+              </goals>
+              <configuration>
+                <rules>
+                  <requireMavenVersion>
+                    <version>[${minimumMavenVersion},)</version>
+                  </requireMavenVersion>
+                  <requireJavaVersion>
+                    <version>[${jdkLevel},)</version>
+                  </requireJavaVersion>
+                </rules>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-failsafe-plugin</artifactId>
+          <version>${maven-surefire-plugin.version}</version>
+          <executions>
+            <execution>
+              <id>integration-test</id>
+              <goals>
+                <goal>integration-test</goal>
+              </goals>
+            </execution>
+            <execution>
+              <id>verify</id>
+              <goals>
+                <goal>verify</goal>
+              </goals>
+            </execution>
+          </executions>
+          <configuration>
+            <!--
+            Use a single forked process to execute all tests
+            See https://maven.apache.org/surefire/maven-surefire-plugin/examples/fork-options-and-parallel-execution.html
+            -->
+            <forkCount>1</forkCount>
+            <reuseForks>false</reuseForks>
+            <redirectTestOutputToFile>true</redirectTestOutputToFile>
+            <argLine>-Xmx256m</argLine>
+            <runOrder>random</runOrder>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-install-plugin</artifactId>
+          <version>${maven-install-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>wagon-maven-plugin</artifactId>
+          <version>${maven-wagon-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-shade-plugin</artifactId>
+          <version>${maven-shade-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-assembly-plugin</artifactId>
+          <version>${maven-assembly-plugin.version}</version>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>${maven-jar-plugin.version}</version>
+          <configuration>
+            <archive>
+              <manifest>
+                <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                <addClasspath>true</addClasspath>
+              </manifest>
+            </archive>
+          </configuration>
+          <executions>
+            <execution>
+              <id>attach-test-jar</id>
+              <goals>
+                <goal>test-jar</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <version>${maven-javadoc-plugin.version}</version>
+          <configuration>
+            <additionalparam>-Xdoclint:none</additionalparam>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-site-plugin</artifactId>
+          <version>${maven-site-plugin.version}</version>
+          <configuration>
+            <locales>en</locales>
+            <skipDeploy>true</skipDeploy>
+          </configuration>
+          <executions>
+            <execution>
+              <id>attach-descriptor</id>
+              <goals>
+                <goal>attach-descriptor</goal>
+              </goals>
+            </execution>
+          </executions>
+          <dependencies>
+            <dependency>
+              <groupId>org.apache.maven.doxia</groupId>
+              <artifactId>doxia-module-markdown</artifactId>
+              <version>${doxia-module-markdown.version}</version>
+            </dependency>
+          </dependencies>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-scm-publish-plugin</artifactId>
+          <version>${maven-scm-publish-plugin.version}</version>
+          <configuration>
+            <checkoutDirectory>${project.build.directory}/scmpublish</checkoutDirectory>
+            <checkinComment>Publishing Site Docs for ${project.artifactId}:${project.version}</checkinComment>
+            <skipDeletedFiles>false</skipDeletedFiles>
+            <!-- publish to same git repo as code, just use a different branch -->
+            <pubScmUrl>${project.scm.connection}</pubScmUrl>
+            <!-- This is the git branch that the web "pages" are located in -->
+            <scmBranch>gh-pages</scmBranch>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-scm-plugin</artifactId>
+          <version>${maven-scm-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>${maven-resources-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <!--
+              Note: http://jira.codehaus.org/browse/MSOURCES-45,
+                    http://jira.codehaus.org/browse/MSOURCES-50
+          -->
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-source-plugin</artifactId>
+          <version>${maven-source-plugin.version}</version>
+          <executions>
+            <execution>
+              <id>attach-sources</id>
+              <phase>package</phase>
+              <goals>
+                <goal>jar-no-fork</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>${maven-surefire-plugin.version}</version>
+          <configuration>
+            <!--
+            Use a new forked process for each test
+            See https://maven.apache.org/surefire/maven-surefire-plugin/examples/fork-options-and-parallel-execution.html
+            -->
+            <forkCount>1</forkCount>
+            <reuseForks>false</reuseForks>
+            <redirectTestOutputToFile>true</redirectTestOutputToFile>
+            <argLine>-Xmx256m</argLine>
+            <runOrder>random</runOrder>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-war-plugin</artifactId>
+          <version>${maven-war-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.cargo</groupId>
+          <artifactId>cargo-maven2-plugin</artifactId>
+          <version>${cargo-maven2-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>versions-maven-plugin</artifactId>
+          <version>${versions-maven-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.liquibase</groupId>
+          <artifactId>liquibase-maven-plugin</artifactId>
+          <version>${liquibase-maven-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.eclipse.jetty</groupId>
+          <artifactId>jetty-maven-plugin</artifactId>
+          <version>${jetty-maven-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-release-plugin</artifactId>
+          <version>${maven-release-plugin.version}</version>
+          <configuration>
+            <goals>deploy</goals>
+            <preparationGoals>install</preparationGoals>
+            <resume>false</resume>
+            <useReleaseProfile>true</useReleaseProfile>
+            <releaseProfiles>gbif-release</releaseProfiles>
+            <tagNameFormat>${release.tagNameBase}-@{project.version}</tagNameFormat>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
+
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-project-info-reports-plugin</artifactId>
+        <version>${maven-project-info-reports-plugin.version}</version>
+        <configuration>
+          <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jxr-plugin</artifactId>
+        <version>${maven-jxr-plugin.version}</version>
+        <reportSets>
+          <reportSet>
+            <id>aggregate</id>
+            <inherited>false</inherited>
+            <reports>
+              <report>aggregate</report>
+            </reports>
+          </reportSet>
+        </reportSets>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>${maven-javadoc-plugin.version}</version>
+        <configuration>
+          <includeDependencySources>true</includeDependencySources>
+          <dependencySourceIncludes>
+            <!-- include ONLY dependencies I control -->
+            <dependencySourceInclude>org.gbif:*</dependencySourceInclude>
+          </dependencySourceIncludes>
+          <failOnError>false</failOnError>
+          <docfilessubdirs>true</docfilessubdirs>
+          <quiet>true</quiet>
+          <linksource>true</linksource>
+          <show>public</show>
+          <aggregate>false</aggregate>
+        </configuration>
+      </plugin>
+    </plugins>
+  </reporting>
+
+  <profiles>
+    <!-- automatically used by the release plugin -->
+    <profile>
+      <id>gbif-release</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-enforcer-plugin</artifactId>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>enforce</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <rules>
+                <requireMavenVersion>
+                  <version>[${minimumMavenVersion},)</version>
+                </requireMavenVersion>
+                <requireJavaVersion>
+                  <version>[${jdkLevel},)</version>
+                </requireJavaVersion>
+                <requirePluginVersions>
+                  <message>Best Practice is to always define plugin versions!</message>
+                </requirePluginVersions>
+                <requireReleaseDeps>
+                  <message>No Snapshot dependencies allowed!</message>
+                </requireReleaseDeps>
+              </rules>
+            </configuration>
+          </plugin>
+          <plugin>
+            <artifactId>maven-source-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar-no-fork</goal>
+                  <goal>test-jar-no-fork</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-site-plugin</artifactId>
+            <executions>
+              <execution>
+                <phase>site</phase>
+                <goals>
+                  <goal>stage</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>attach-descriptor</id>
+                <goals>
+                  <goal>attach-descriptor</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-scm-publish-plugin</artifactId>
+            <executions>
+              <execution>
+                <phase>site-deploy</phase>
+                <goals>
+                  <goal>publish-scm</goal>
+                </goals>
+              </execution>
+            </executions>
+            <!-- do not publish submodules -->
+            <inherited>false</inherited>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+  <!-- profile to deploy web applications to our staging server -->
+  <profile>
+    <!--
+      To use it define a <server> and a <profile> in your Maven settings.xml file like this:
+
+        <profile>
+          <id>deploy-boma</id>
+          <properties>
+            <cargo.deploy-settings>gbif-boma</cargo.deploy-settings>
+            <cargo.containerId>tomcat5x</cargo.containerId>
+          </properties>
+        </profile>
+
+        <server>
+          <id>gbif-boma</id>
+          <configuration>
+            <cargo.remote.uri>http://boma.gbif.org/manager</cargo.tomcat.manager.url>
+            <cargo.remote.username></cargo.remote.username>
+            <cargo.remote.password></cargo.remote.password>
+          </configuration>
+        </server>
+
+      You can then deploy: mvn cargo:redeploy -Pdeploy-boma
+
+      The context is your artifactId but it can be overridden by the property cargo.context.
+
+      Notice that this will automatically skip unless for all projects without a src/main/webapp.
+      See http://dev.gbif.org/issues/browse/GBIFMPOM-8
+    -->
+      <id>war-deploy</id>
+      <activation>
+        <file>
+          <exists>src/main/webapp</exists>
+        </file>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.cargo</groupId>
+            <artifactId>cargo-maven2-plugin</artifactId>
+            <version>${cargo-maven2-plugin.version}</version>
+
+            <configuration>
+              <container>
+                <containerId>${cargo.containerId}</containerId>
+                <type>${cargo.containerType}</type>
+              </container>
+
+              <configuration>
+                <type>runtime</type>
+
+                <properties>
+                  <cargo.server.settings>${cargo.deploy-settings}</cargo.server.settings>
+                </properties>
+              </configuration>
+
+              <deployables>
+                <deployable>
+                  <properties>
+                    <context>${cargo.context}</context>
+                  </properties>
+                </deployable>
+              </deployables>
+
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+  </profiles>
+</project>

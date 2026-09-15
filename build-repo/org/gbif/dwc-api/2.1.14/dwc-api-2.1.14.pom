@@ -1,0 +1,93 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.gbif</groupId>
+    <artifactId>motherpom</artifactId>
+    <version>59</version>
+  </parent>
+
+  <artifactId>dwc-api</artifactId>
+  <version>2.1.14</version>
+  <packaging>jar</packaging>
+
+  <name>Darwin Core API</name>
+  <description>Enumeration of all Darwin Core and Dublin Core terms</description>
+  <url>https://github.com/gbif/${project.artifactId}</url>
+
+  <scm>
+    <connection>scm:git:git@github.com:gbif/${project.artifactId}.git</connection>
+    <url>https://github.com/gbif/${project.artifactId}</url>
+    <developerConnection>scm:git:git@github.com:gbif/${project.artifactId}.git</developerConnection>
+    <tag>dwc-api-2.1.14</tag>
+  </scm>
+
+  <distributionManagement>
+    <site>
+      <id>gh-pages</id>
+      <url>https://gbif.github.io/${project.artifactId}/</url>
+    </site>
+    <repository>
+      <id>gbif-release</id>
+      <url>https://repository.gbif.org/content/repositories/releases</url>
+    </repository>
+    <snapshotRepository>
+      <id>gbif-deploy</id>
+      <url>https://repository.gbif.org/content/repositories/snapshots</url>
+    </snapshotRepository>
+  </distributionManagement>
+
+  <properties>
+    <main.basedir>${project.basedir}</main.basedir>
+    <java.version>17</java.version>
+
+    <jackson.version>2.19.4</jackson.version>
+    <junit.version>5.14.1</junit.version>
+    <slf4j.version>2.0.17</slf4j.version>
+  </properties>
+
+  <repositories>
+    <repository>
+      <id>gbif-all</id>
+      <url>https://repository.gbif.org/content/groups/gbif</url>
+    </repository>
+  </repositories>
+
+  <build>
+    <defaultGoal>install</defaultGoal>
+    <plugins>
+      <plugin>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+
+  </build>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>${slf4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+      <version>${jackson.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>${jackson.version}</version>
+    </dependency>
+
+    <!-- TESTS ONLY -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+</project>

@@ -1,0 +1,164 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.gbif</groupId>
+    <artifactId>motherpom</artifactId>
+    <version>59</version>
+  </parent>
+
+  <artifactId>dwca-io</artifactId>
+  <version>3.0.1</version>
+  <packaging>jar</packaging>
+
+  <name>Darwin Core Archive IO Library</name>
+  <url>https://github.com/gbif/dwca-io</url>
+
+  <scm>
+	  <connection>scm:git:git@github.com:gbif/dwca-io.git</connection>
+	  <url>https://github.com/gbif/dwca-io</url>
+	  <developerConnection>scm:git:git@github.com:gbif/dwca-io.git</developerConnection>
+    <tag>dwca-io-3.0.1</tag>
+  </scm>
+
+  <distributionManagement>
+    <site>
+      <id>gh-pages</id>
+      <url>https://gbif.github.io/${project.artifactId}/</url>
+    </site>
+  </distributionManagement>
+
+  <properties>
+    <dwc-api.version>2.1.8</dwc-api.version>
+    <gbif-common.version>0.60</gbif-common.version>
+    <commons-io.version>2.21.0</commons-io.version>
+    <commons-lang.version>3.20.0</commons-lang.version>
+    <commons-text.version>1.12.0</commons-text.version>
+    <commons-collections.version>4.5.0</commons-collections.version>
+    <commons-collections.version>4.5.0</commons-collections.version>
+    <commons-digester.version>3.2</commons-digester.version>
+    <freemarker.version>2.3.34</freemarker.version>
+    <junit.version>5.14.1</junit.version>
+    <slf4j.version>2.0.17</slf4j.version>
+    <jakarta-validation.version>3.1.1</jakarta-validation.version>
+    <jakarta-annotation.version>3.0.0</jakarta-annotation.version>
+
+    <exec-maven-plugin.version>1.6.0</exec-maven-plugin.version>
+  </properties>
+
+  <repositories>
+    <repository>
+      <id>gbif-all</id>
+      <url>https://repository.gbif.org/content/groups/gbif</url>
+    </repository>
+  </repositories>
+
+  <build>
+    <defaultGoal>install</defaultGoal>
+    <plugins>
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <configuration>
+          <descriptorRefs>
+            <descriptorRef>jar-with-dependencies</descriptorRef>
+          </descriptorRefs>
+          <archive>
+            <manifest>
+              <addClasspath>true</addClasspath>
+              <mainClass>org.gbif.dwca.tools.ArchiveScanner</mainClass>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>${exec-maven-plugin.version}</version>
+        <configuration>
+          <classpathScope>test</classpathScope>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>java</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
+
+  <dependencies>
+    <!-- GBIF -->
+    <dependency>
+      <groupId>org.gbif</groupId>
+      <artifactId>dwc-api</artifactId>
+      <version>${dwc-api.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.gbif</groupId>
+      <artifactId>gbif-common</artifactId>
+      <version>${gbif-common.version}</version>
+    </dependency>
+
+    <!-- Other -->
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>${commons-io.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>${commons-lang.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-text</artifactId>
+      <version>${commons-text.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-collections4</artifactId>
+      <version>${commons-collections.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-digester3</artifactId>
+      <version>${commons-digester.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.annotation</groupId>
+      <artifactId>jakarta.annotation-api</artifactId>
+      <version>${jakarta-annotation.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.validation</groupId>
+      <artifactId>jakarta.validation-api</artifactId>
+      <version>${jakarta-validation.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.freemarker</groupId>
+      <artifactId>freemarker</artifactId>
+      <version>${freemarker.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>${slf4j.version}</version>
+    </dependency>
+
+    <!-- Test -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+</project>

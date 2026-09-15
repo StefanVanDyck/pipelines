@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.gbif</groupId>
+    <artifactId>motherpom</artifactId>
+    <version>61</version>
+  </parent>
+
+  <groupId>org.gbif.predicates</groupId>
+  <artifactId>predicates-parent</artifactId>
+  <version>2.1.12</version>
+  <packaging>pom</packaging>
+
+  <modules>
+    <module>es-predicates</module>
+    <module>sql-predicates</module>
+  </modules>
+
+  <name>Predicates :: Parent</name>
+  <description>Predicate API implementations</description>
+  <url>https://github.com/gbif/gbif-predicates</url>
+
+  <scm>
+    <connection>scm:git:git@github.com:gbif/gbif-predicates.git</connection>
+    <url>https://github.com/gbif/gbif-predicates</url>
+    <developerConnection>scm:git:git@github.com:gbif/gbif-predicates.git</developerConnection>
+    <tag>predicates-parent-2.1.12</tag>
+  </scm>
+
+  <distributionManagement>
+    <site>
+      <id>gh-pages</id>
+      <url>https://gbif.github.io/gbif-predicates/</url>
+    </site>
+    <repository>
+      <id>gbif-release</id>
+      <url>https://repository.gbif.org/content/repositories/releases</url>
+    </repository>
+    <snapshotRepository>
+      <id>gbif-deploy</id>
+      <url>https://repository.gbif.org/content/repositories/snapshots</url>
+    </snapshotRepository>
+  </distributionManagement>
+
+  <repositories>
+    <repository>
+      <id>gbif-all</id>
+      <url>https://repository.gbif.org/content/groups/gbif</url>
+    </repository>
+  </repositories>
+
+  <properties>
+    <!-- Common variables -->
+    <jdkLevel>17</jdkLevel>
+    <encoding>UTF-8</encoding>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+    <project.build.sourceEncoding>${encoding}</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>${encoding}</project.reporting.outputEncoding>
+    <project.resources.sourceEncoding>${encoding}</project.resources.sourceEncoding>
+
+    <gbif-api.version>2.4.12</gbif-api.version>
+    <dwc-api.version>2.1.13</dwc-api.version>
+
+    <!-- Logging -->
+    <slf4j.version>2.0.17</slf4j.version>
+
+    <!-- Tools-->
+    <lombok.version>1.18.42</lombok.version>
+
+    <!-- Libraries -->
+    <jts.version>1.19.0</jts.version>
+    <spatial4j.version>0.8</spatial4j.version>
+    <jakarta-annotation.version>3.0.0</jakarta-annotation.version>
+
+    <!-- Tests -->
+    <junit-jupiter.version>5.14.1</junit-jupiter.version>
+    <mockito.version>5.20.0</mockito.version>
+    <hamcrest.version>3.0</hamcrest.version>
+  </properties>
+
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <version>${maven-javadoc-plugin.version}</version>
+          <configuration>
+            <doclint>none</doclint>
+            <includeDependencySources>false</includeDependencySources>
+            <dependencySourceIncludes>
+              <dependencySourceInclude>org.gbif:*</dependencySourceInclude>
+            </dependencySourceIncludes>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>build-helper-maven-plugin</artifactId>
+          <version>${build-helper-maven.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-shade-plugin</artifactId>
+          <version>${maven-shade-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-clean-plugin</artifactId>
+          <version>${maven-clean-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-plugin-plugin</artifactId>
+          <version>${maven-plugin-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.jacoco</groupId>
+          <artifactId>jacoco-maven-plugin</artifactId>
+        </plugin>
+        <plugin>
+          <groupId>com.diffplug.spotless</groupId>
+          <artifactId>spotless-maven-plugin</artifactId>
+          <version>${spotless-maven-plugin.version}</version>
+          <configuration combine.self="override">
+            <java>
+              <googleJavaFormat>
+                <version>1.10.0</version>
+                <style>GOOGLE</style>
+              </googleJavaFormat>
+            </java>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+    <plugins>
+      <plugin>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <!-- Runs in compile phase to fail fast in case of formatting issues.-->
+            <id>spotless-check</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+    </plugins>
+  </build>
+
+
+  <!-- All dependencies of all modules are listed here with the project-wide default version.  Only when necessary
+  are library versions overridden in modules.-->
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <version>${lombok.version}</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <!-- GBIF APIs -->
+      <dependency>
+        <groupId>org.gbif</groupId>
+        <artifactId>gbif-api</artifactId>
+        <version>${gbif-api.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.gbif</groupId>
+        <artifactId>dwc-api</artifactId>
+        <version>${dwc-api.version}</version>
+      </dependency>
+
+      <!-- Libraries -->
+      <dependency>
+        <groupId>org.locationtech.jts</groupId>
+        <artifactId>jts-core</artifactId>
+        <version>${jts.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.locationtech.spatial4j</groupId>
+        <artifactId>spatial4j</artifactId>
+        <version>${spatial4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>jakarta.annotation</groupId>
+        <artifactId>jakarta.annotation-api</artifactId>
+        <version>${jakarta-annotation.version}</version>
+      </dependency>
+
+      <!-- Logging dependencies -->
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>${slf4j.version}</version>
+      </dependency>
+
+      <!-- Tests -->
+      <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter</artifactId>
+        <version>${junit-jupiter.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-core</artifactId>
+        <version>${mockito.version}</version>
+        <scope>test</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+</project>

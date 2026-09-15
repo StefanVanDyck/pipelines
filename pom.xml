@@ -7,6 +7,9 @@
         <groupId>org.gbif</groupId>
         <artifactId>motherpom</artifactId>
         <version>59</version>
+        <!-- resolve the parent from the vendored repo so builds don't depend on
+             repository.gbif.org still hosting it -->
+        <relativePath>build-repo/org/gbif/motherpom/59/motherpom-59.pom</relativePath>
     </parent>
 
     <groupId>org.gbif.pipelines</groupId>
@@ -47,6 +50,12 @@
     </distributionManagement>
 
     <repositories>
+        <!-- vendored copy of the GBIF/ALA artifacts this build needs, so builds don't
+             break when repository.gbif.org removes old versions. See build-repo/. -->
+        <repository>
+            <id>project-bundled</id>
+            <url>file://${maven.multiModuleProjectDirectory}/build-repo</url>
+        </repository>
         <repository>
             <id>gbif-central</id>
             <url>https://repository.gbif.org/repository/central/</url>
@@ -78,6 +87,10 @@
         </repository>
     </repositories>
     <pluginRepositories>
+        <pluginRepository>
+            <id>project-bundled</id>
+            <url>file://${maven.multiModuleProjectDirectory}/build-repo</url>
+        </pluginRepository>
         <pluginRepository>
             <id>gbif-central</id>
             <url>https://repository.gbif.org/repository/central/</url>

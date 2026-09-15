@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <parent>
+    <artifactId>registry-parent</artifactId>
+    <groupId>org.gbif.registry</groupId>
+    <version>4.2.19.1</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+
+  <artifactId>registry-ws-client</artifactId>
+  <name>GBIF Registry Client</name>
+
+  <properties>
+    <main.basedir>${project.parent.basedir}</main.basedir>
+
+    <sonar.coverage.jacoco.xmlReportPaths>
+      ${project.basedir}/../target/site/jacoco-it/jacoco.xml,${project.basedir}/../target/site/jacoco-ut/jacoco.xml
+    </sonar.coverage.jacoco.xmlReportPaths>
+  </properties>
+
+  <dependencies>
+    <!-- Spring dependencies -->
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-openfeign</artifactId>
+    </dependency>
+
+    <!-- GBIF dependencies -->
+    <dependency>
+      <groupId>org.gbif</groupId>
+      <artifactId>gbif-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.gbif</groupId>
+      <artifactId>gbif-common-ws</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.gbif.registry</groupId>
+      <artifactId>registry-domain</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.gbif.registry</groupId>
+      <artifactId>registry-doi</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.gbif.registry</groupId>
+          <artifactId>registry-persistence</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <!-- Third party dependencies -->
+    <dependency>
+      <groupId>io.github.openfeign</groupId>
+      <artifactId>feign-jackson</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <annotationProcessorPaths>
+            <path>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+              <version>${lombok.version}</version>
+            </path>
+          </annotationProcessorPaths>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

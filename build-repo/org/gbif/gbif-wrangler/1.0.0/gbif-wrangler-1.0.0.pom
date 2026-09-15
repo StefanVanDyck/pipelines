@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ~ Copyright 2012 Global Biodiversity Information Facility (GBIF) ~ ~
+  Licensed under the Apache License, Version 2.0 (the "License"); ~ you may
+  not use this file except in compliance with the License. ~ You may obtain
+  a copy of the License at ~ ~ http://www.apache.org/licenses/LICENSE-2.0 ~
+  ~ Unless required by applicable law or agreed to in writing, software ~ distributed
+  under the License is distributed on an "AS IS" BASIS, ~ WITHOUT WARRANTIES
+  OR CONDITIONS OF ANY KIND, either express or implied. ~ See the License for
+  the specific language governing permissions and ~ limitations under the License. -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.gbif</groupId>
+    <artifactId>motherpom</artifactId>
+    <version>59</version>
+  </parent>
+
+  <artifactId>gbif-wrangler</artifactId>
+  <version>1.0.0</version>
+  <packaging>jar</packaging>
+
+  <name>GBIF Wrangler :: Common coordination utilities</name>
+  <description>Provides common classes to manage locks, distributed counters and common coordination services</description>
+  <url>http://sites.gbif.org/common-resources/gbif-wrangler</url>
+
+  <properties>
+    <guava.version>14.0.1</guava.version>
+    <zookeeper.version>3.8.1</zookeeper.version>
+    <curator.version>5.5.0</curator.version>
+    <jsr305.version>2.0.0</jsr305.version>
+
+    <!-- Tools-->
+    <lombok.version>1.18.28</lombok.version>
+
+    <!-- Logging -->
+    <slf4j.version>1.7.25</slf4j.version>
+
+    <!-- Testing -->
+    <junit-jupiter.version>5.6.3</junit-jupiter.version>
+  </properties>
+
+
+  <scm>
+    <connection>scm:git:git@github.com:gbif/gbif-wrangler.git</connection>
+    <developerConnection>scm:git:git@github.com:gbif/gbif-wrangler.git</developerConnection>
+    <url>https://github.com/gbif/gbif-wrangler</url>
+    <tag>gbif-wrangler-1.0.0</tag>
+  </scm>
+
+  <issueManagement>
+    <system>JIRA</system>
+    <url>http://dev.gbif.org/issues/browse/GBIFCOM</url>
+  </issueManagement>
+
+  <ciManagement>
+    <system>jenkins</system>
+    <url>http://builds.gbif.org/job/gbif-wrangler</url>
+  </ciManagement>
+
+  <distributionManagement>
+    <site>
+      <id>gbif-site</id>
+      <name>Site for the project</name>
+      <url>scp://tools.gbif.org:/var/www/html/sites/common-resources/gbif-wrangler</url>
+    </site>
+  </distributionManagement>
+  <repositories>
+    <repository>
+      <id>gbif-central</id>
+      <url>https://repository.gbif.org/repository/central/</url>
+    </repository>
+    <repository>
+      <id>gbif-release</id>
+      <url>https://repository.gbif.org/repository/releases/</url>
+    </repository>
+    <repository>
+      <id>gbif-snapshot</id>
+      <url>https://repository.gbif.org/repository/snapshots/</url>
+    </repository>
+    <repository>
+      <id>gbif-thirdparty</id>
+      <url>https://repository.gbif.org/repository/thirdparty/</url>
+    </repository>
+  </repositories>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>${lombok.version}</version>
+      <scope>provided</scope>
+      <optional>true</optional>
+    </dependency>
+
+    <!-- Direct dependencies -->
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>${guava.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.curator</groupId>
+      <artifactId>curator-framework</artifactId>
+      <version>${curator.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.curator</groupId>
+      <artifactId>curator-recipes</artifactId>
+      <version>${curator.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.curator</groupId>
+      <artifactId>curator-x-discovery</artifactId>
+      <version>${curator.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.curator</groupId>
+      <artifactId>curator-test</artifactId>
+      <version>${curator.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>${slf4j.version}</version>
+    </dependency>
+    <!-- testing -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <version>${junit-jupiter.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <version>${junit-jupiter.version}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+</project>
