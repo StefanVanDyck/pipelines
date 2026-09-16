@@ -24,4 +24,11 @@ public interface SamplingPipelineOptions extends AllDatasetsPipelinesOptions, S3
   Boolean getDeleteSamplingForNewLayers();
 
   void setDeleteSamplingForNewLayers(Boolean deleteSamplingForNewLayers);
+
+  @Description("Force sampling on all layers by treating the run as if new layers were added. "
+      + "Requires deleteSamplingForNewLayers=true (the default) to clear the existing sampling cache.")
+  @Default.Boolean(false)
+  Boolean getForceSamplingAllLayers();
+
+  void setForceSamplingAllLayers(Boolean forceSamplingAllLayers);
 }

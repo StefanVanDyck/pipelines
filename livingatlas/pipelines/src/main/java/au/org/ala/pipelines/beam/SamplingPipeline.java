@@ -75,11 +75,17 @@ public class SamplingPipeline {
 
     FileSystem fs = FileSystemFactory.getInstance(hdfsConfigs).getFs(options.getInputPath());
 
-    log.info("Checking for new layers in the system");
     SamplingService samplingService =
         SamplingUtils.initSamplingService(config.getSamplingService().getWsUrl());
 
-    boolean newLayersAvailable = newLayersAddedSinceLastSample(samplingService, options, fs);
+    boolean newLayersAvailable;
+    if (options.getForceSamplingAllLayers()) {
+      log.info("Forcing sampling on all layers");
+      newLayersAvailable = true;
+    } else {
+      log.info("Checking for new layers in the system");
+      newLayersAvailable = newLayersAddedSinceLastSample(samplingService, options, fs);
+    }
 
     if (newLayersAvailable) {
       if (options.getDeleteSamplingForNewLayers()) {
